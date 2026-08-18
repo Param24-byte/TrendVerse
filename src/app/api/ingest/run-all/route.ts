@@ -25,12 +25,15 @@ export async function POST(request: Request) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
     const startTime = Date.now();
 
-    // Trigger all 4 platform ingestions concurrently
+    // Trigger all platform ingestions concurrently
     const platforms = [
       { name: "github", body: { niche, ...githubInputs } },
       { name: "hackernews", body: { niche, ...hnInputs } },
       { name: "producthunt", body: { niche, ...phInputs } },
       { name: "huggingface", body: { niche, ...hfInputs } },
+      { name: "devto", body: { niche } },
+      { name: "reddit", body: { niche } },
+      { name: "stackexchange", body: { niche } },
     ];
 
     const results: ScraperRunResult[] = await Promise.all(
