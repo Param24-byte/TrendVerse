@@ -59,15 +59,23 @@ async def cluster_posts(req: ClusterRequest):
 
     posts = result.data or []
 
-    if len(posts) < 10:
+    if len(posts) < 3:
         return ClusterResponse(
             clusters_created=0,
             niche=req.niche,
-            error=f"Insufficient data: only {len(posts)} embedded posts found (need ≥10)",
+            error=f"Insufficient data: only {len(posts)} embedded posts found (need ≥3)",
         )
 
     # ── Build embedding matrix ────────────────────────────────────────────────
-    embeddings = np.array([p["embedding"] for p in posts], dtype=np.float32)
+    import json
+    parsed_embeddings = []
+    for p in posts:
+        emb = p["embedding"]
+        if isinstance(emb, str):
+            emb = json.loads(emb)
+        parsed_embeddings.append(emb)
+
+    embeddings = np.array(parsed_embeddings, dtype=np.float32)
     embeddings = normalize(embeddings)
 
     # ── Fetch previous window posts for growth rate ───────────────────────────
@@ -119,6 +127,7 @@ async def cluster_posts(req: ClusterRequest):
 
         # ── Write trend to Supabase ───────────────────────────────────────────
         trend_data = {
+            "id": f"trend-{uuid.uuid4().hex[:12]}",
             "niche": req.niche,
             "cluster_label": rep_title[:120],
             "representative_title": rep_title,

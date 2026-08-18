@@ -10,7 +10,8 @@ export async function POST(request: Request) {
     // 1. Embed missing posts
     const embedRes = await fetch(`${mlServiceUrl}/embed/batch`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ niche })
     });
     const embedData = await embedRes.json().catch(() => null);
 
