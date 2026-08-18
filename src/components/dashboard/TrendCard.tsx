@@ -1,6 +1,10 @@
+"use client";
+
 import { Trend } from "@/lib/types";
 import { PLATFORM_META } from "@/lib/types";
-import { ArrowUpRight, TrendingUp, Layers, Activity } from "lucide-react";
+import { ArrowUpRight, TrendingUp, Layers, Activity, Sparkles, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 interface TrendCardProps {
   trend: Trend;
@@ -8,6 +12,35 @@ interface TrendCardProps {
 }
 
 export function TrendCard({ trend, index }: TrendCardProps) {
+  const [brief, setBrief] = useState<string | null>(trend.research_brief || null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerateBrief = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (brief) {
+      setIsExpanded(!isExpanded);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/brief/${trend.id}`, { method: "POST" });
+      if (!res.ok) throw new Error("Failed to generate brief");
+      const data = await res.json();
+      setBrief(data.brief);
+      setIsExpanded(true);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="glass group relative overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:border-indigo-500/50">
       {/* Background Gradient Blob */}
@@ -83,6 +116,36 @@ export function TrendCard({ trend, index }: TrendCardProps) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* AI Brief Section */}
+      <div className="mt-6 border-t border-white/10 pt-4">
+        <button
+          type="button"
+          onClick={handleGenerateBrief}
+          disabled={isLoading}
+          className="group flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-500/10 px-4 py-2.5 text-sm font-medium text-indigo-300 transition-all hover:bg-indigo-500/20 disabled:opacity-50"
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4 transition-transform group-hover:scale-110" />
+          )}
+          {isLoading ? "Generating Brief..." : brief ? (isExpanded ? "Hide AI Brief" : "Read AI Brief") : "Generate AI Brief"}
+          {brief && !isLoading && (
+             isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+          )}
+        </button>
+
+        {error && (
+          <p className="mt-2 text-center text-xs text-red-400">{error}</p>
+        )}
+
+        {isExpanded && brief && (
+          <div className="mt-4 animate-in fade-in slide-in-from-top-2 rounded-xl bg-black/20 p-4 text-sm leading-relaxed text-slate-300 prose prose-invert prose-p:mb-2 prose-headings:mb-3 prose-headings:text-white prose-a:text-indigo-400 max-w-none border border-white/5">
+            <ReactMarkdown>{brief}</ReactMarkdown>
+          </div>
+        )}
       </div>
     </div>
   );
