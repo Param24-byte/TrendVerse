@@ -1,0 +1,34 @@
+import { NextResponse } from "next/server";
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json().catch(() => ({}));
+    const niche = body.niche || "ai-tools";
+
+    const mlServiceUrl = process.env.ML_SERVICE_URL || "http://localhost:8000";
+
+    // 1. Embed missing posts
+    const embedRes = await fetch(`${mlServiceUrl}/embed/batch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" }
+    });
+    const embedData = await embedRes.json().catch(() => null);
+
+    // 2. Cluster posts into trends
+    const clusterRes = await fetch(`${mlServiceUrl}/cluster`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ niche, window_hours: 24, min_posts: 2 }) // We set min_posts to 2 because we only have 4 dummy posts!
+    });
+    const clusterData = await clusterRes.json().catch(() => null);
+
+    return NextResponse.json({
+      success: true,
+      embeddings: embedData,
+      clusters: clusterData
+    });
+  } catch (error) {
+    console.error("ML trigger error:", error);
+    return NextResponse.json({ error: "Failed to trigger ML service" }, { status: 500 });
+  }
+}
