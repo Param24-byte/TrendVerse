@@ -4,20 +4,23 @@ import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { TrendGrid } from "@/components/dashboard/TrendGrid";
-import { mockTrends } from "@/lib/mock-data";
+import { PostFeed } from "@/components/dashboard/PostFeed";
+import { useTrends } from "@/hooks/useTrends";
+import { usePosts } from "@/hooks/usePosts";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const [currentNiche, setCurrentNiche] = useState("ai-tools");
 
-  // In Phase 9, this will be replaced with a Supabase hook
-  // For now, we filter the mock data by the selected niche
-  const activeTrends = mockTrends.filter((t) => t.niche === currentNiche);
+  // Fetch real-time data from Supabase
+  const { trends, loading: trendsLoading } = useTrends(currentNiche);
+  const { posts, loading: postsLoading } = usePosts(currentNiche);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar currentNiche={currentNiche} />
       
-      <div className="flex flex-col flex-1 pl-64 h-full">
+      <div className="flex flex-col flex-1 pl-64 h-full relative">
         <Header 
           currentNiche={currentNiche} 
           onNicheChange={setCurrentNiche} 
@@ -32,8 +35,23 @@ export default function DashboardPage() {
               Real-time developer trends clustered from GitHub, Hacker News, Product Hunt, and Hugging Face.
             </p>
 
-            {/* Dashboard grid */}
-            <TrendGrid trends={activeTrends} />
+            {(trendsLoading || postsLoading) ? (
+              <div className="flex h-64 flex-col items-center justify-center gap-4 rounded-2xl border border-white/5 bg-white/5">
+                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+                <p className="text-sm font-medium text-slate-400">Loading live data from Supabase...</p>
+              </div>
+            ) : (
+              <>
+                {/* Top row: The aggregated clusters */}
+                <TrendGrid trends={trends} />
+
+                {/* Bottom row: The raw scraped posts making up those clusters */}
+                <PostFeed 
+                  posts={posts} 
+                  title="Raw Scrape Activity (Live Feed)" 
+                />
+              </>
+            )}
           </div>
         </main>
       </div>

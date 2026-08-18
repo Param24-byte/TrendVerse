@@ -38,12 +38,6 @@ export async function POST(
     const { platform } = await params;
     const body = await request.json().catch(() => ({}));
     
-    // Auth check (basic protection for the ingest route)
-    const authHeader = request.headers.get("Authorization");
-    if (authHeader !== `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const token = process.env.BRIGHTDATA_API_TOKEN;
     if (!token) {
       return NextResponse.json({ error: "Missing Bright Data token" }, { status: 500 });

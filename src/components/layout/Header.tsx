@@ -2,6 +2,7 @@
 
 import { Bell, Search } from "lucide-react";
 import { NicheSelector } from "@/components/NicheSelector";
+import { LiveIndicator } from "@/components/LiveIndicator";
 
 interface HeaderProps {
   currentNiche: string;
@@ -34,6 +35,9 @@ export function Header({ currentNiche, onNicheChange }: HeaderProps) {
             currentNiche={currentNiche} 
             onNicheChange={onNicheChange} 
           />
+
+          {/* Live Indicator */}
+          <LiveIndicator />
 
           {/* Separator */}
           <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-white/10" aria-hidden="true" />
