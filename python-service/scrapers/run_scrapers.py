@@ -5,32 +5,45 @@ import schedule
 import time
 from datetime import datetime
 
-# Placeholders for the Bright Data Collector IDs
-# You can replace these with your actual collector IDs from Scraper Studio
+from dotenv import load_dotenv
+
+# Load env variables from the root .env.local file
+env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env.local")
+load_dotenv(env_path)
+
 COLLECTORS = {
-    "github": "c_msyyxluo2hcfkfh8j8",
-    "hn": "c_msyzjh9ya77jf5luh",
-    "ph": "c_msyzuyr028tbdopz9l",
-    "hf": "c_msz029zd1aifrjnz2f"
+    "github": os.getenv("BRIGHTDATA_GITHUB_SCRAPER_ID", ""),
+    "hn": os.getenv("BRIGHTDATA_HACKERNEWS_SCRAPER_ID", ""),
+    "ph": os.getenv("BRIGHTDATA_PRODUCTHUNT_SCRAPER_ID", ""),
+    "hf": os.getenv("BRIGHTDATA_HUGGINGFACE_SCRAPER_ID", "")
+}
+
+URLS = {
+    "github": "https://github.com/search?q=AI",
+    "hn": "https://hn.algolia.com/?q=AI",
+    "ph": "https://www.producthunt.com/search?q=AI",
+    "hf": "https://huggingface.co/models?search=AI"
 }
 
 def trigger_scraper(platform, collector_id):
-    print(f"[{datetime.now().isoformat()}] Triggering scraper for {platform} ({collector_id})...")
+    target_url = URLS.get(platform)
+    print(f"[{datetime.now().isoformat()}] Triggering scraper for {platform} on {target_url} ({collector_id})...")
     try:
         # We use bdata CLI to run the scraper
-        # 'bdata scraper run <COLLECTOR_ID>'
+        # 'bdata scraper run <COLLECTOR_ID> <URL>'
         result = subprocess.run(
-            ["npx.cmd", "-p", "@brightdata/cli", "bdata", "scraper", "run", collector_id],
+            ["npx.cmd", "-p", "@brightdata/cli", "bdata", "scraper", "run", collector_id, target_url],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            encoding="utf-8"
         )
         print(f"[{platform}] Success! Data collected.")
         
         # Save output for normalization step
         output_file = f"data_{platform}_{int(time.time())}.json"
-        with open(output_file, "w") as f:
-            f.write(result.stdout)
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write(result.stdout or "[]")
             
         print(f"[{platform}] Output saved to {output_file}")
         return output_file
@@ -48,8 +61,15 @@ def run_all_scrapers():
         
         output_file = trigger_scraper(platform, collector_id)
         if output_file:
-            # TODO: trigger normalize.py or ingest directly to Supabase
             print(f"[{platform}] Ready for ingestion.")
+            
+    # Trigger ingestion
+    print("\nTriggering data ingestion to Supabase...")
+    try:
+        from normalize import normalize_all_pending_files
+        normalize_all_pending_files()
+    except Exception as e:
+        print(f"Error running normalization: {e}")
 
 if __name__ == "__main__":
     # Run once immediately
