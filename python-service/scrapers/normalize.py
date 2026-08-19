@@ -17,7 +17,7 @@ def map_bright_data_to_supabase(platform, record, niche="AI"):
     """
     
     # Generic mapping fallbacks
-    title = record.get("title") or record.get("name") or record.get("heading") or "Untitled"
+    title = record.get("title") or record.get("name") or record.get("heading") or record.get("model_title") or record.get("repository_title") or "Untitled"
     caption = record.get("caption") or record.get("description") or record.get("text") or ""
     
     # Engagement mapping
@@ -31,12 +31,15 @@ def map_bright_data_to_supabase(platform, record, niche="AI"):
         
     posted_at = record.get("posted_at") or record.get("created_at") or datetime.now(timezone.utc).isoformat()
     
+    url = record.get("url") or record.get("link") or record.get("product_page_url") or ""
+    
     return {
         "id": f"{platform}-{uuid.uuid4().hex[:8]}", # Generate a unique ID if one isn't provided
         "niche": niche,
         "platform": platform,
         "title": title[:255],  # Truncate to avoid DB length errors
         "caption": caption,
+        "url": url[:1000],
         "hashtags": hashtags,
         "engagement_count": int(engagement_count) if str(engagement_count).isdigit() else 0,
         "velocity_score": float(velocity_score) if str(velocity_score).replace('.', '', 1).isdigit() else 0.0,
@@ -64,8 +67,8 @@ def process_file(file_path):
         
     records_to_insert = []
     for item in data:
-        # We pass 'AI' as a default niche for now since our run_scrapers.py searches for AI
-        mapped = map_bright_data_to_supabase(platform, item, niche="AI")
+        # We pass 'ai-tools' as a default niche for now since our run_scrapers.py searches for AI
+        mapped = map_bright_data_to_supabase(platform, item, niche="ai-tools")
         records_to_insert.append(mapped)
         
     if records_to_insert:

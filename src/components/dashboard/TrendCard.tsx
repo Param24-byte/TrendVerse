@@ -2,7 +2,7 @@
 
 import { Trend } from "@/lib/types";
 import { PLATFORM_META } from "@/lib/types";
-import { ArrowUpRight, TrendingUp, Layers, Activity, Sparkles, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowUpRight, TrendingUp, Layers, Activity, Sparkles, Loader2, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 
@@ -16,6 +16,8 @@ export function TrendCard({ trend, index }: TrendCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const sourceUrl = trend.trend_posts?.find(tp => tp.posts?.url)?.posts?.url;
 
   const handleGenerateBrief = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -74,9 +76,18 @@ export function TrendCard({ trend, index }: TrendCardProps) {
 
       {/* Main Content */}
       <div className="mb-6">
-        <h3 className="mb-2 text-xl font-bold leading-tight text-white group-hover:text-indigo-300 transition-colors">
-          {trend.cluster_label}
-        </h3>
+        {sourceUrl ? (
+          <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="group/link flex items-start gap-2">
+            <h3 className="mb-2 text-xl font-bold leading-tight text-white group-hover/link:text-indigo-400 transition-colors">
+              {trend.cluster_label}
+            </h3>
+            <ExternalLink className="h-4 w-4 text-slate-500 opacity-0 group-hover/link:opacity-100 transition-opacity mt-1 flex-shrink-0" />
+          </a>
+        ) : (
+          <h3 className="mb-2 text-xl font-bold leading-tight text-white group-hover:text-indigo-300 transition-colors">
+            {trend.cluster_label}
+          </h3>
+        )}
         <p className="line-clamp-2 text-sm text-slate-400">
           Leading post: {trend.representative_title}
         </p>

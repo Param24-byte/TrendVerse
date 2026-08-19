@@ -52,6 +52,7 @@ export interface Trend {
   window_end: string | null;
   created_at: string;
   research_brief?: string;
+  trend_posts?: Array<{ posts: { url: string | null } }>;
 }
 
 export interface TrendPost {

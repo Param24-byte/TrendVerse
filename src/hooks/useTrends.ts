@@ -14,9 +14,16 @@ export function useTrends(niche: string) {
 
     async function fetchTrends() {
       setLoading(true);
-      const { data, error } = await supabase
+        const { data, error } = await supabase
         .from("trends")
-        .select("*")
+        .select(`
+          *,
+          trend_posts (
+            posts (
+              url
+            )
+          )
+        `)
         .eq("niche", niche)
         .order("trend_score", { ascending: false });
 
