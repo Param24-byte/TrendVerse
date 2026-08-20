@@ -21,7 +21,7 @@ export function Sidebar({ currentNiche }: SidebarProps) {
   ];
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-white/10 bg-[#0a0f1e]/80 backdrop-blur-xl">
+    <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-white/10 bg-black/80 backdrop-blur-xl">
       {/* Brand */}
       <div className="flex h-16 items-center px-6 border-b border-white/5">
         <div className="flex items-center gap-2">
