@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { NICHES } from "@/lib/types";
 import { BarChart3, Settings, BookOpen, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface SidebarProps {
   currentNiche: string;
@@ -45,19 +46,25 @@ export function Sidebar({ currentNiche }: SidebarProps) {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                isActive
-                  ? "bg-indigo-500/10 text-indigo-400"
-                  : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200"
               )}
             >
+              {isActive && (
+                <motion.div
+                  layoutId="sidebar-active"
+                  className="absolute inset-0 rounded-lg bg-indigo-500/10 border border-indigo-500/20"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
               <Icon
                 className={cn(
-                  "h-5 w-5 transition-colors duration-200",
+                  "relative z-10 h-5 w-5 transition-colors duration-200",
                   isActive ? "text-indigo-400" : "text-slate-500 group-hover:text-slate-300"
                 )}
               />
-              {item.name}
+              <span className={cn("relative z-10 transition-colors duration-200", isActive ? "text-indigo-400 font-semibold" : "text-slate-400 group-hover:text-slate-200")}>
+                {item.name}
+              </span>
             </Link>
           );
         })}

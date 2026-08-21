@@ -4,28 +4,31 @@ import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { createClient } from "@/lib/supabase/client";
-import { Loader2, User, Bell, Database, Save, Play, ShieldAlert, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, User, Bell, Database, Save, Play, ShieldAlert, CheckCircle2, XCircle, LogOut } from "lucide-react";
 import { NICHES, PLATFORM_META } from "@/lib/types";
 import toast from "react-hot-toast";
 import ShimmerText from "@/components/kokonutui/shimmer-text";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
   const [currentNiche, setCurrentNiche] = useState("ai-tools");
   const [user, setUser] = useState<any>(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  // Settings states
+  // Preference fields
   const [defaultNiche, setDefaultNiche] = useState("ai-tools");
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [velocitySpikes, setVelocitySpikes] = useState(true);
-  const [savingSettings, setSavingSettings] = useState(false);
 
-  // Scraper pipeline states
-  const [pipelineNiche, setPipelineNiche] = useState("ai-tools");
+  const [savingSettings, setSavingSettings] = useState(false);
   const [runningPipeline, setRunningPipeline] = useState(false);
+  const [pipelineNiche, setPipelineNiche] = useState("ai-tools");
   const [pipelineResult, setPipelineResult] = useState<any>(null);
 
   const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
     async function loadUserData() {
@@ -41,6 +44,18 @@ export default function SettingsPage() {
     }
     loadUserData();
   }, [supabase]);
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success("Signed out successfully");
+      router.push("/login");
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to sign out");
+    }
+  };
 
   const handleSaveSettings = async () => {
     setSavingSettings(true);
@@ -179,30 +194,57 @@ export default function SettingsPage() {
                       <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
                         Notification Channels
                       </label>
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#070b15]/40 border border-white/5">
+                      
+                      {/* Email Switch with satisfies custom layout knob motion */}
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-[#070b15]/40 border border-white/5">
                         <div>
                           <p className="text-sm font-semibold text-white">Email Research Summaries</p>
                           <p className="text-xs text-slate-500">Receive weekly summaries of top niches.</p>
                         </div>
-                        <input
-                          type="checkbox"
-                          checked={emailNotifications}
-                          onChange={(e) => setEmailNotifications(e.target.checked)}
-                          className="h-4 w-4 rounded border-white/10 bg-[#070b15]/60 text-indigo-600 focus:ring-indigo-500"
-                        />
+                        <button
+                          type="button"
+                          onClick={() => setEmailNotifications(!emailNotifications)}
+                          className={cn(
+                            "relative flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer",
+                            emailNotifications ? "bg-indigo-600" : "bg-white/5 border border-white/10"
+                          )}
+                        >
+                          <motion.div
+                            layout
+                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                            className="h-4 w-4 rounded-full bg-white shadow-md"
+                            style={{ 
+                              marginLeft: emailNotifications ? "22px" : "2px",
+                              marginRight: emailNotifications ? "2px" : "22px"
+                            }}
+                          />
+                        </button>
                       </div>
 
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#070b15]/40 border border-white/5">
+                      {/* Velocity switch */}
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-[#070b15]/40 border border-white/5">
                         <div>
                           <p className="text-sm font-semibold text-white">Velocity Spike Alerts</p>
                           <p className="text-xs text-slate-500">Alert me when a trend score jumps by over 50%.</p>
                         </div>
-                        <input
-                          type="checkbox"
-                          checked={velocitySpikes}
-                          onChange={(e) => setVelocitySpikes(e.target.checked)}
-                          className="h-4 w-4 rounded border-white/10 bg-[#070b15]/60 text-indigo-600 focus:ring-indigo-500"
-                        />
+                        <button
+                          type="button"
+                          onClick={() => setVelocitySpikes(!velocitySpikes)}
+                          className={cn(
+                            "relative flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer",
+                            velocitySpikes ? "bg-indigo-600" : "bg-white/5 border border-white/10"
+                          )}
+                        >
+                          <motion.div
+                            layout
+                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                            className="h-4 w-4 rounded-full bg-white shadow-md"
+                            style={{ 
+                              marginLeft: velocitySpikes ? "22px" : "2px",
+                              marginRight: velocitySpikes ? "2px" : "22px"
+                            }}
+                          />
+                        </button>
                       </div>
                     </div>
 
@@ -329,6 +371,34 @@ export default function SettingsPage() {
                         </div>
                       )}
                     </div>
+                  </div>
+                </div>
+
+                {/* Danger Zone Card */}
+                <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-6 sm:p-8">
+                  <div className="flex items-center gap-4 border-b border-rose-500/10 pb-4 mb-6">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400">
+                      <ShieldAlert className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-rose-400 font-heading">Danger Zone</h2>
+                      <p className="text-xs text-rose-300/60">Destructive actions for your account.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <p className="text-sm font-semibold text-white">Sign Out of Account</p>
+                      <p className="text-xs text-slate-500">Sign out of this session. You will need to log back in.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-6 py-2.5 text-xs font-semibold text-rose-400 hover:bg-rose-500/20 transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <LogOut className="h-3.5 w-3.5" />
+                      <span>Sign Out</span>
+                    </button>
                   </div>
                 </div>
               </div>

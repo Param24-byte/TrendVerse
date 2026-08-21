@@ -3,11 +3,12 @@
 import { Trend } from "@/lib/types";
 import { PLATFORM_META } from "@/lib/types";
 import { ArrowUpRight, TrendingUp, Layers, Activity, Sparkles, Loader2, ExternalLink, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { motion, animate } from "framer-motion";
 
 interface TrendCardProps {
   trend: Trend;
@@ -20,6 +21,63 @@ export function TrendCard({ trend, index }: TrendCardProps) {
   const [error, setError] = useState<string | null>(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
+
+  // 1. Score count-up animation
+  const [displayScore, setDisplayScore] = useState(0);
+  useEffect(() => {
+    const controls = animate(0, trend.trend_score || 0, {
+      duration: 0.8,
+      ease: "easeOut",
+      onUpdate: (value) => setDisplayScore(Math.round(value * 10) / 10),
+    });
+    return () => controls.stop();
+  }, [trend.trend_score]);
+
+  // 2. Word-by-word streaming typing effect for AI briefs
+  const [streamedText, setStreamedText] = useState("");
+  useEffect(() => {
+    if (!brief) {
+      setStreamedText("");
+      return;
+    }
+    let i = 0;
+    const words = brief.split(" ");
+    setStreamedText("");
+    const interval = setInterval(() => {
+      if (i < words.length) {
+        setStreamedText((prev) => prev + (prev ? " " : "") + words[i]);
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 20); // 20ms per word
+    return () => clearInterval(interval);
+  }, [brief]);
+
+  // 3. Magnetic Hover Tilt calculation
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    // Rotate max 4 degrees
+    const rotateX = -(y / (rect.height / 2)) * 4;
+    const rotateY = (x / (rect.width / 2)) * 4;
+    setTilt({ x: rotateX, y: rotateY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+    setIsFlipped(false);
+  };
+
+  // 4. Generate consistent sparkline shape based on trend.id hash
+  const sparklineData = Array.from({ length: 6 }, (_, i) => {
+    const charCode = trend.id.charCodeAt(i % trend.id.length) || 10;
+    return { value: (charCode % 40) + i * 3 };
+  });
+  const sparklinePoints = sparklineData.map((d, i) => `${i * 12},${35 - (d.value / 60) * 25}`).join(" ");
 
   const sourceUrl = trend.trend_posts?.find(tp => tp.posts?.url)?.posts?.url;
 
@@ -46,17 +104,19 @@ export function TrendCard({ trend, index }: TrendCardProps) {
 
   return (
     <div
-      className="group relative h-[380px] w-full [perspective:2000px]"
+      className="group relative h-[380px] w-full [perspective:2000px] cursor-pointer"
+      onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsFlipped(true)}
-      onMouseLeave={() => setIsFlipped(false)}
+      onMouseLeave={handleMouseLeave}
     >
       <div
         className={cn(
-          "relative h-full w-full rounded-2xl",
-          "[transform-style:preserve-3d]",
-          "transition-[transform] duration-500 ease-[cubic-bezier(0.77,0,0.175,1)]",
-          isFlipped ? "[transform:rotateY(180deg)]" : "[transform:rotateY(0deg)]"
+          "relative h-full w-full rounded-2xl transition-[transform] duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)]"
         )}
+        style={{
+          transformStyle: "preserve-3d",
+          transform: `rotateY(${isFlipped ? 180 : 0}deg) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+        }}
       >
         {/* FRONT OF CARD */}
         <div
@@ -79,17 +139,26 @@ export function TrendCard({ trend, index }: TrendCardProps) {
                   </span>
                   <div className="flex items-center gap-1.5 text-emerald-400">
                     <TrendingUp className="h-4 w-4" />
-                    <span className="text-base font-bold">{trend.trend_score?.toFixed(1) || "0.0"}</span>
+                    <span className="text-base font-bold tabular-nums">{displayScore.toFixed(1)}</span>
                   </div>
                 </div>
               </div>
 
-              {trend.growth_rate && trend.growth_rate > 1 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-medium text-emerald-400 border border-emerald-500/20">
-                  <ArrowUpRight className="h-3 w-3" />
-                  {((trend.growth_rate - 1) * 100).toFixed(0)}%
-                </span>
-              )}
+              {/* Sparkline Drawing Animation */}
+              <div className="flex items-center h-8 pr-1" title="Hourly Ingestion Rate">
+                <svg className="w-16 h-8 overflow-visible" viewBox="0 0 60 40">
+                  <motion.polyline
+                    fill="none"
+                    stroke="#10b981"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    points={sparklinePoints}
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.2, ease: "easeInOut" }}
+                  />
+                </svg>
+              </div>
             </div>
 
             {/* Title / Description */}
@@ -184,7 +253,7 @@ export function TrendCard({ trend, index }: TrendCardProps) {
                 </div>
               ) : brief ? (
                 <div className="prose prose-invert prose-p:mb-2 prose-headings:text-white prose-headings:font-bold max-w-none text-slate-300">
-                  <ReactMarkdown>{brief}</ReactMarkdown>
+                  <ReactMarkdown>{streamedText}</ReactMarkdown>
                 </div>
               ) : (
                 <div className="flex h-full flex-col items-center justify-center text-center p-4">

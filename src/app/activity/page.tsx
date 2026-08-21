@@ -4,10 +4,11 @@ import { useEffect, useState, useRef } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { createClient } from "@/lib/supabase/client";
-import { Loader2, Search, Play, Pause, ExternalLink, MessageSquare, GitFork, ArrowUp, Zap } from "lucide-react";
+import { Loader2, Search, Play, Pause, ExternalLink, MessageSquare, GitFork, ArrowUp, Zap, Star } from "lucide-react";
 import { NICHES, PLATFORM_META, Platform } from "@/lib/types";
 import toast from "react-hot-toast";
 import ShimmerText from "@/components/kokonutui/shimmer-text";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function LiveActivityPage() {
   const [currentNiche, setCurrentNiche] = useState("ai-tools");
@@ -16,37 +17,44 @@ export default function LiveActivityPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("all");
   const [isStreaming, setIsStreaming] = useState(true);
+
   const supabase = createClient();
   const channelRef = useRef<any>(null);
 
-  // Fetch initial posts on niche change
+  // Fetch initial posts on niche mount
   useEffect(() => {
-    async function fetchInitialPosts() {
+    async function fetchPosts() {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("niche", currentNiche)
-        .order("scraped_at", { ascending: false })
-        .limit(50);
+      try {
+        const { data, error } = await supabase
+          .from("posts")
+          .select("*")
+          .eq("niche", currentNiche)
+          .order("scraped_at", { ascending: false })
+          .limit(40);
 
-      if (error) {
-        console.error("Error fetching posts:", error);
-      } else {
-        setPosts(data || []);
+        if (error) {
+          console.error("Error fetching posts:", error);
+        } else {
+          setPosts(data || []);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
-    fetchInitialPosts();
+    fetchPosts();
   }, [currentNiche, supabase]);
 
-  // Set up real-time postgres subscription
+  // Subscription channel for real-time inserts
   useEffect(() => {
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+
     if (!isStreaming) {
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
       return;
     }
 
@@ -62,12 +70,13 @@ export default function LiveActivityPage() {
         },
         (payload) => {
           setPosts((prevPosts) => {
-            // Avoid duplicate posts
             if (prevPosts.some((p) => p.id === payload.new.id)) {
               return prevPosts;
             }
             toast("New live post ingested!", { icon: "📥", duration: 1500 });
-            return [payload.new, ...prevPosts].slice(0, 100); // Keep last 100 posts
+            // Dispatch custom window event to pulse header indicator
+            window.dispatchEvent(new CustomEvent("new-post-ingested"));
+            return [payload.new, ...prevPosts].slice(0, 40); // Keep last 40 posts
           });
         }
       )
@@ -98,6 +107,17 @@ export default function LiveActivityPage() {
       p.creator?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesPlatform && matchesSearch;
   });
+
+  // Calculate platform percentages
+  const totalPosts = posts.length || 1;
+  const platformBreakdown = Object.keys(PLATFORM_META)
+    .map((plat) => {
+      const count = posts.filter((p) => p.platform === plat).length;
+      const percentage = (count / totalPosts) * 100;
+      const meta = PLATFORM_META[plat as Platform];
+      return { platform: plat, percentage, color: meta.color, label: meta.label, emoji: meta.emoji };
+    })
+    .filter((b) => b.percentage > 0);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -188,6 +208,28 @@ export default function LiveActivityPage() {
               })}
             </div>
 
+            {/* Dynamic stacked breakdown bar */}
+            {posts.length > 0 && (
+              <div className="mb-8 rounded-2xl border border-white/5 bg-[#08080a]/60 p-4">
+                <div className="flex justify-between items-center text-xs text-slate-500 mb-2">
+                  <span className="font-semibold uppercase tracking-wider text-[10px]">Platform Share Breakdown</span>
+                  <span>{posts.length} total active posts</span>
+                </div>
+                <div className="flex h-3 w-full rounded-full bg-white/5 overflow-hidden">
+                  {platformBreakdown.map((item) => (
+                    <motion.div
+                      key={item.platform}
+                      animate={{ width: `${item.percentage}%` }}
+                      transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                      className="h-full"
+                      style={{ backgroundColor: item.color }}
+                      title={`${item.emoji} ${item.label}: ${item.percentage.toFixed(0)}%`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {loading ? (
               <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-2xl border border-white/5 bg-[#0a0f1e]/40">
                 <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
@@ -195,114 +237,125 @@ export default function LiveActivityPage() {
               </div>
             ) : filteredPosts.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0a0f1e]/20 py-24 text-center">
-                <Zap className="h-10 w-10 text-slate-600 mb-4" />
+                <Zap className="h-10 w-10 text-slate-600 mb-4 animate-pulse" />
                 <p className="text-lg font-medium text-slate-300">No posts in feed</p>
                 <p className="mt-2 text-sm text-slate-500">
                   Try triggering a manual scrape in Settings or select a different filter.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {filteredPosts.map((post) => {
-                  const meta = PLATFORM_META[post.platform as Platform];
-                  const formattedDate = post.posted_at
-                    ? new Date(post.posted_at).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "";
+              <motion.div 
+                layout 
+                className="grid grid-cols-1 gap-4 md:grid-cols-2"
+              >
+                <AnimatePresence mode="popLayout">
+                  {filteredPosts.map((post) => {
+                    const meta = PLATFORM_META[post.platform as Platform];
+                    const formattedDate = post.posted_at
+                      ? new Date(post.posted_at).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "";
 
-                  return (
-                    <a
-                      key={post.id}
-                      href={post.url || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="glass group flex flex-col justify-between rounded-xl p-5 border border-white/5 bg-[#0e1324]/30 hover:border-indigo-500/30 hover:bg-white/5 transition-all duration-300"
-                    >
-                      <div>
-                        {/* Header details */}
-                        <div className="flex items-center justify-between mb-3">
-                          <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${meta?.badgeClass}`}>
-                            {meta?.emoji} {meta?.label}
-                          </span>
-                          <span className="text-[10px] font-mono text-slate-500">{formattedDate}</span>
+                    return (
+                      <motion.a
+                        key={post.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9, y: -20 }}
+                        animate={{ 
+                          opacity: 1, 
+                          scale: 1, 
+                          y: 0,
+                          borderColor: [
+                            "rgba(255, 255, 255, 0.05)",
+                            meta?.color || "rgba(99, 102, 241, 0.8)",
+                            "rgba(255, 255, 255, 0.05)"
+                          ]
+                        }}
+                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 25,
+                          borderColor: { duration: 2.5 }
+                        }}
+                        href={post.url || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="glass group flex flex-col justify-between rounded-xl p-5 border bg-[#0e1324]/30 hover:border-indigo-500/30 hover:bg-white/5 transition-all duration-300"
+                        style={{ borderLeftWidth: "4px" }}
+                      >
+                        <div>
+                          {/* Header details */}
+                          <div className="flex items-center justify-between mb-3">
+                            <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${meta?.badgeClass}`}>
+                              {meta?.emoji} {meta?.label}
+                            </span>
+                            <span className="text-[10px] font-mono text-slate-500">{formattedDate}</span>
+                          </div>
+
+                          {/* Title */}
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <h3 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors line-clamp-2">
+                              {post.title || post.caption || "Untitled Scraped Post"}
+                            </h3>
+                            <ExternalLink className="h-3.5 w-3.5 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex-shrink-0" />
+                          </div>
+
+                          {/* Caption Preview */}
+                          {post.caption && post.title && (
+                            <p className="text-xs text-slate-400 line-clamp-2 mb-3">
+                              {post.caption}
+                            </p>
+                          )}
+
+                          {/* Creator info */}
+                          {post.creator && (
+                            <span className="text-[10px] font-mono text-slate-500">
+                              By: <span className="text-slate-400">{post.creator}</span>
+                            </span>
+                          )}
                         </div>
 
-                        {/* Title */}
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors line-clamp-2">
-                            {post.title || post.caption || "Untitled Scraped Post"}
-                          </h3>
-                          <ExternalLink className="h-3.5 w-3.5 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex-shrink-0" />
+                        {/* Engagement stats */}
+                        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-white/5 text-[10px] font-mono text-slate-400">
+                          {post.velocity_score !== undefined && post.velocity_score !== null && (
+                            <div className="flex items-center gap-1 text-emerald-400">
+                              <Zap className="h-3 w-3" />
+                              <span>Score: {post.velocity_score.toFixed(1)}</span>
+                            </div>
+                          )}
+                          {post.engagement_count !== undefined && post.engagement_count !== null && (
+                            <div className="flex items-center gap-1">
+                              <Star className="h-3 w-3 text-amber-400" />
+                              <span>{post.engagement_count.toLocaleString()}</span>
+                            </div>
+                          )}
+                          {post.engagement_breakdown?.forks !== undefined && (
+                            <div className="flex items-center gap-1">
+                              <GitFork className="h-3 w-3" />
+                              <span>Forks: {post.engagement_breakdown.forks}</span>
+                            </div>
+                          )}
+                          {post.engagement_breakdown?.comments !== undefined && (
+                            <div className="flex items-center gap-1">
+                              <MessageSquare className="h-3 w-3" />
+                              <span>Comments: {post.engagement_breakdown.comments}</span>
+                            </div>
+                          )}
                         </div>
-
-                        {/* Caption Preview */}
-                        {post.caption && post.title && (
-                          <p className="text-xs text-slate-400 line-clamp-2 mb-3">
-                            {post.caption}
-                          </p>
-                        )}
-
-                        {/* Creator info */}
-                        {post.creator && (
-                          <span className="text-[10px] font-mono text-slate-500">
-                            By: <span className="text-slate-400">{post.creator}</span>
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Engagement stats */}
-                      <div className="flex items-center gap-4 mt-4 pt-3 border-t border-white/5 text-[10px] font-mono text-slate-400">
-                        {post.velocity_score !== undefined && post.velocity_score !== null && (
-                          <div className="flex items-center gap-1 text-emerald-400">
-                            <Zap className="h-3 w-3" />
-                            <span>Score: {post.velocity_score.toFixed(1)}</span>
-                          </div>
-                        )}
-                        {post.engagement_count !== undefined && post.engagement_count !== null && (
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 text-amber-400" />
-                            <span>{post.engagement_count.toLocaleString()}</span>
-                          </div>
-                        )}
-                        {post.engagement_breakdown?.forks !== undefined && (
-                          <div className="flex items-center gap-1">
-                            <GitFork className="h-3 w-3" />
-                            <span>Forks: {post.engagement_breakdown.forks}</span>
-                          </div>
-                        )}
-                        {post.engagement_breakdown?.comments !== undefined && (
-                          <div className="flex items-center gap-1">
-                            <MessageSquare className="h-3 w-3" />
-                            <span>Comments: {post.engagement_breakdown.comments}</span>
-                          </div>
-                        )}
-                      </div>
-                    </a>
-                  );
-                })}
-              </div>
+                      </motion.a>
+                    );
+                  })}
+                </AnimatePresence>
+              </motion.div>
             )}
           </div>
         </main>
       </div>
     </div>
-  );
-}
-
-// Mini helper just in case Lucide Star is missing
-function Star({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={className}
-    >
-      <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clipRule="evenodd" />
-    </svg>
   );
 }
