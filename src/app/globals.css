@@ -261,3 +261,19 @@
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+
+@keyframes float-1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(40px, 50px) scale(1.1); }
+}
+@keyframes float-2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(-50px, 30px) scale(0.95); }
+}
+@keyframes float-3 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(30px, -40px) scale(1.05); }
+}
+.orb-1 { animation: float-1 22s ease-in-out infinite; }
+.orb-2 { animation: float-2 28s ease-in-out infinite; }
+.orb-3 { animation: float-3 25s ease-in-out infinite; }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Trend } from "@/lib/types";
-import { PLATFORM_META } from "@/lib/types";
+import { PLATFORM_META, Platform } from "@/lib/types";
 import { ArrowUpRight, TrendingUp, Layers, Activity, Sparkles, Loader2, ExternalLink, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
@@ -81,6 +81,16 @@ export function TrendCard({ trend, index }: TrendCardProps) {
 
   const sourceUrl = trend.trend_posts?.find(tp => tp.posts?.url)?.posts?.url;
 
+  // 5. Circular score gauge params
+  const scorePercent = Math.min((trend.trend_score || 0) * 10, 100);
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (scorePercent / 100) * circumference;
+
+  // Accent color from first platform
+  const firstPlatform = trend.platforms?.[0];
+  const accentColor = PLATFORM_META[firstPlatform as Platform]?.color || "#818cf8";
+
   const handleGenerateBrief = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -121,26 +131,45 @@ export function TrendCard({ trend, index }: TrendCardProps) {
         {/* FRONT OF CARD */}
         <div
           className={cn(
-            "absolute inset-0 h-full w-full p-6 flex flex-col justify-between",
+            "absolute inset-0 h-full w-full p-6 flex flex-col justify-between overflow-hidden",
             "[backface-visibility:hidden] [transform:rotateY(0deg)]",
-            "rounded-2xl border border-white/5 bg-[#08080a] shadow-xl"
+            "rounded-2xl border border-white/10 bg-[#08080a] shadow-xl hover:shadow-[0_8px_32px_rgba(99,102,241,0.05)] transition-shadow"
           )}
         >
+          {/* Top Edge Accent Bar */}
+          <div 
+            className="absolute top-0 left-0 right-0 h-[3px]"
+            style={{ background: `linear-gradient(90deg, ${accentColor}, transparent)` }}
+          />
+
           {/* Header */}
           <div>
-            <div className="mb-4 flex items-start justify-between">
-              <div className="flex items-center gap-2">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-sm font-bold text-slate-300 border border-white/10">
                   #{index + 1}
                 </span>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                    Velocity Score
+
+                {/* Score Radial Gauge */}
+                <div className="relative flex h-12 w-12 items-center justify-center shrink-0" title={`Velocity Score: ${trend.trend_score?.toFixed(1)}`}>
+                  <svg className="w-12 h-12 transform -rotate-90">
+                    <circle cx="24" cy="24" r={radius} className="stroke-white/5" strokeWidth="2.5" fill="transparent" />
+                    <motion.circle 
+                      cx="24" 
+                      cy="24" 
+                      r={radius} 
+                      className="stroke-emerald-400" 
+                      strokeWidth="3" 
+                      fill="transparent" 
+                      strokeDasharray={circumference}
+                      initial={{ strokeDashoffset: circumference }}
+                      animate={{ strokeDashoffset }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                    />
+                  </svg>
+                  <span className="absolute text-[10px] font-extrabold text-emerald-400 tabular-nums">
+                    {displayScore.toFixed(0)}
                   </span>
-                  <div className="flex items-center gap-1.5 text-emerald-400">
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="text-base font-bold tabular-nums">{displayScore.toFixed(1)}</span>
-                  </div>
                 </div>
               </div>
 
@@ -189,39 +218,24 @@ export function TrendCard({ trend, index }: TrendCardProps) {
 
           {/* Footer Stats & Interactions */}
           <div className="border-t border-white/5 pt-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex gap-3 text-xs text-slate-500">
-                <div className="flex items-center gap-1">
-                  <Layers className="h-3.5 w-3.5" />
-                  <span>{trend.post_count} posts</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Activity className="h-3.5 w-3.5" />
-                  <span>{trend.engagement_velocity?.toFixed(0)}/hr</span>
-                </div>
+            <div className="flex items-center justify-between mb-3 text-[10px] font-mono text-slate-500">
+              <div className="flex gap-2">
+                <span>{trend.post_count} posts</span>
+                <span>•</span>
+                <span>{trend.engagement_velocity?.toFixed(0)}/hr</span>
               </div>
-
-              {/* Platforms */}
-              <div className="flex -space-x-1.5">
-                {trend.platforms?.slice(0, 3).map((platform) => {
-                  const meta = PLATFORM_META[platform];
-                  if (!meta) return null;
-                  return (
-                    <div
-                      key={platform}
-                      title={meta.label}
-                      className="flex h-6 w-6 items-center justify-center rounded-full border border-black bg-slate-900 text-[10px]"
-                    >
-                      {meta.emoji}
-                    </div>
-                  );
-                })}
+              <div className="flex gap-1.5">
+                {trend.platforms?.map((plat) => (
+                  <span key={plat} title={PLATFORM_META[plat as Platform]?.label}>
+                    {PLATFORM_META[plat as Platform]?.emoji}
+                  </span>
+                ))}
               </div>
             </div>
 
             {/* Sparkles Flip Hint */}
-            <div className="flex items-center justify-center gap-2 text-xs font-semibold text-indigo-400">
-              <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+            <div className="flex items-center justify-center gap-1.5 text-[10px] font-semibold text-indigo-400/80">
+              <Sparkles className="h-3 w-3 animate-pulse" />
               <span>Hover to read AI Brief</span>
             </div>
           </div>
