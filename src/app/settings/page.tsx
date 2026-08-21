@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Loader2, User, Bell, Database, Save, Play, ShieldAlert, CheckCircle2, XCircle } from "lucide-react";
 import { NICHES, PLATFORM_META } from "@/lib/types";
 import toast from "react-hot-toast";
+import ShimmerText from "@/components/kokonutui/shimmer-text";
 
 export default function SettingsPage() {
   const [currentNiche, setCurrentNiche] = useState("ai-tools");
@@ -92,9 +93,10 @@ export default function SettingsPage() {
 
         <main className="flex-1 overflow-y-auto bg-transparent p-8">
           <div className="mx-auto max-w-4xl">
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-2 font-heading">
-              Settings
-            </h1>
+            <ShimmerText
+              text="Settings"
+              className="text-3xl font-bold tracking-tight mb-2 font-heading"
+            />
             <p className="text-slate-400 mb-8">
               Manage your user profile, active niche preferences, notifications, and run scrapers.
             </p>

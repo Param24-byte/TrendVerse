@@ -9,6 +9,8 @@ import { useTrends } from "@/hooks/useTrends";
 import { usePosts } from "@/hooks/usePosts";
 import { Loader2 } from "lucide-react";
 
+import ShimmerText from "@/components/kokonutui/shimmer-text";
+
 export default function DashboardPage() {
   const [currentNiche, setCurrentNiche] = useState("ai-tools");
 
@@ -28,9 +30,10 @@ export default function DashboardPage() {
         
         <main className="flex-1 overflow-y-auto bg-transparent p-8">
           <div className="mx-auto max-w-7xl">
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-2 font-heading">
-              Trending Now
-            </h1>
+            <ShimmerText
+              text="Trending Now"
+              className="text-3xl font-bold tracking-tight mb-2 font-heading"
+            />
             <p className="text-slate-400 mb-8">
               Real-time developer trends clustered from GitHub, Hacker News, Product Hunt, and Hugging Face.
             </p>

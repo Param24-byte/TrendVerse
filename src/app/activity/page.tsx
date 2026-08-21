@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Loader2, Search, Play, Pause, ExternalLink, MessageSquare, GitFork, ArrowUp, Zap } from "lucide-react";
 import { NICHES, PLATFORM_META, Platform } from "@/lib/types";
 import toast from "react-hot-toast";
+import ShimmerText from "@/components/kokonutui/shimmer-text";
 
 export default function LiveActivityPage() {
   const [currentNiche, setCurrentNiche] = useState("ai-tools");
@@ -110,9 +111,10 @@ export default function LiveActivityPage() {
             {/* Header section */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight text-white mb-2 font-heading">
-                  Live Activity Feed
-                </h1>
+                <ShimmerText
+                  text="Live Activity Feed"
+                  className="text-3xl font-bold tracking-tight mb-2 font-heading"
+                />
                 <p className="text-slate-400">
                   Real-time incoming posts scraped across primary developer platforms.
                 </p>

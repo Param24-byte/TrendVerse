@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Loader2, Search, BookOpen, Calendar, ArrowRight, Layers } from "lucide-react";
 import Link from "next/link";
 import { NICHES } from "@/lib/types";
+import ShimmerText from "@/components/kokonutui/shimmer-text";
 
 export default function BriefsListPage() {
   const [currentNiche, setCurrentNiche] = useState("ai-tools");
@@ -63,9 +64,10 @@ export default function BriefsListPage() {
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight text-white mb-2 font-heading">
-                  AI Research Briefs
-                </h1>
+                <ShimmerText
+                  text="AI Research Briefs"
+                  className="text-3xl font-bold tracking-tight mb-2 font-heading"
+                />
                 <p className="text-slate-400">
                   Detailed summaries, recommended links, and insights on emerging developer trends.
                 </p>
