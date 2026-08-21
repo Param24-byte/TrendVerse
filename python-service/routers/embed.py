@@ -42,7 +42,8 @@ async def embed_batch(req: EmbedBatchRequest):
         return EmbedBatchResponse(embedded=0, skipped=0, niche=req.niche)
 
     model = get_model()
-    embedded = 0
+    texts_to_embed = []
+    valid_posts = []
     skipped = 0
 
     for post in posts:
@@ -56,15 +57,26 @@ async def embed_batch(req: EmbedBatchRequest):
             skipped += 1
             continue
 
-        # Generate embedding (384-dim vector)
-        vector = model.encode(embed_text, normalize_embeddings=True)
-        vector_list = vector.tolist()
+        texts_to_embed.append(embed_text)
+        valid_posts.append(post)
 
-        # Update Supabase
-        supabase.table("posts").update(
-            {"embedding": vector_list}
-        ).eq("id", post["id"]).execute()
-
-        embedded += 1
+    if valid_posts:
+        model = get_model()
+        # Generate embeddings in a single batch
+        vectors = model.encode(texts_to_embed, normalize_embeddings=True)
+        
+        # Prepare upsert list
+        upsert_data = []
+        for idx, post in enumerate(valid_posts):
+            upsert_data.append({
+                "id": post["id"],
+                "embedding": vectors[idx].tolist()
+            })
+            
+        # Perform bulk upsert
+        supabase.table("posts").upsert(upsert_data).execute()
+        embedded = len(valid_posts)
+    else:
+        embedded = 0
 
     return EmbedBatchResponse(embedded=embedded, skipped=skipped, niche=req.niche)

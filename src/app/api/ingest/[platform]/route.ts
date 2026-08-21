@@ -27,8 +27,11 @@ export async function POST(
     const { platform } = await params;
     const body = await request.json().catch(() => ({}));
     const niche = body.niche || "ai-tools";
-    
-    // Auth check bypassed for local testing
+    // Validate authentication
+    const authHeader = request.headers.get("Authorization");
+    if (authHeader !== `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const supabase = createServerClient();
     const insertedPosts: any[] = [];

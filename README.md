@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TrendVerse — Real-Time Trend Intelligence for Developers
+
+TrendVerse is a full-stack dashboard that tracks and clusters emerging developer trends in real-time across multiple platforms (GitHub, Hacker News, Product Hunt, Hugging Face, Dev.to, Reddit, Stack Exchange). By scraping, vectorizing post content, and clustering topics using KMeans, TrendVerse dynamically extracts hot topics, scores their velocity, and generates AI Research Briefs.
+
+---
+
+## Architecture & Tech Stack
+
+```
+                     ┌───────────────────────┐
+                     │   Next.js Frontend    │
+                     │  (App Router, Port 3000)
+                     └──────────┬────────────┘
+                                │ Requests
+                                ▼
+  ┌─────────────────┐    ┌──────┴────────────┐    ┌─────────────────┐
+  │  Supabase DB    │◄───┤  FastAPI Service   │───►│   Gemini API    │
+  │  (PGVector RLS) │    │  (Python, Port 8000)│   │  (Brief Gen)    │
+  └─────────────────┘    └───────────────────┘    └─────────────────┘
+```
+
+1. **Frontend**: Next.js 16 (App Router), Tailwind CSS, Framer Motion, Recharts, shadcn/ui.
+2. **Backend**: Python FastAPI, scikit-learn (KMeans clustering), SentenceTransformers (`all-MiniLM-L6-v2` for 384-dimensional vector embeddings).
+3. **Database**: Supabase PostgreSQL with `pgvector` enabled for similarity search and Row Level Security (RLS).
+4. **AI Generation**: Gemini 2.5 Flash for structured Markdown Research Brief synthesis.
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js (v20+ recommended)
+- Python (v3.9+ recommended)
+- A Supabase project (Free tier works perfectly)
+- Gemini API Key
+
+---
+
+## 1. Database Setup (Supabase)
+
+1. Open your Supabase Project dashboard.
+2. Navigate to the **SQL Editor**.
+3. Create a new query and paste the contents of [supabase/migrations/001_initial_schema.sql](supabase/migrations/001_initial_schema.sql).
+4. Run the script. This will:
+   - Enable the `pgvector` extension.
+   - Create tables: `sources`, `posts`, `trends`, `trend_posts`, and `research_reports`.
+   - Setup Row Level Security (RLS) policies allowing read access to users and service role access for backend write operations.
+
+---
+
+## 2. Environment Configuration
+
+Create a `.env.local` file in the root directory (based on the sample values in `.env.local`):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Supabase Keys (from Project Settings > API)
+NEXT_PUBLIC_SUPABASE_URL=https://<your-project-id>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+
+# Gemini API (from Google AI Studio)
+GEMINI_API_KEY=<your-gemini-api-key>
+
+# ML Python Service URL
+ML_SERVICE_URL=http://localhost:8000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 3. Backend Setup (FastAPI)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Navigate to the `python-service` directory:
+   ```bash
+   cd python-service
+   ```
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   # On Windows:
+   .\venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Start the Uvicorn server:
+   ```bash
+   python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+   ```
 
-## Learn More
+The backend health check will be available at [http://localhost:8000/health](http://localhost:8000/health).
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 4. Frontend Setup (Next.js)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Navigate to the root directory and install npm packages:
+   ```bash
+   npm install
+   ```
+2. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the dashboard.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Ingestion & Scrape Execution
+Scrapers execute periodically every 30 minutes. You can also manually trigger ingestion and clustering:
+1. Access the **Settings** page (requires logging in/registering).
+2. Scroll to the **Data Ingestion Pipeline** panel.
+3. Select a niche (e.g. `AI Tools`) and click **Execute Pipeline**. This will fetch raw posts, generate embeddings in batch, run KMeans clustering, and surface the latest trends dynamically.

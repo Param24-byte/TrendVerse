@@ -48,6 +48,8 @@ venv/
 .venv/
 python-service/venv/
 python-service/.venv/
+python-service/*.processed
+python-service/*.json
 
 # custom configs & logs
 .gemini/

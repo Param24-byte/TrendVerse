@@ -92,6 +92,11 @@ async def cluster_posts(req: ClusterRequest):
     kmeans = KMeans(n_clusters=k, random_state=42, n_init="auto")
     labels = kmeans.fit_predict(embeddings)
 
+    # Fetch existing trends from the last 24 hours to deduplicate
+    yesterday = (now - timedelta(hours=24)).isoformat()
+    existing_result = supabase.table("trends").select("id, cluster_label").eq("niche", req.niche).gte("created_at", yesterday).execute()
+    existing_trends = existing_result.data or []
+
     created_trends: list[ClusterSummary] = []
 
     for cluster_id in range(k):
@@ -127,7 +132,6 @@ async def cluster_posts(req: ClusterRequest):
 
         # ── Write trend to Supabase ───────────────────────────────────────────
         trend_data = {
-            "id": f"trend-{uuid.uuid4().hex[:12]}",
             "niche": req.niche,
             "cluster_label": rep_title[:120],
             "representative_title": rep_title,
@@ -141,8 +145,30 @@ async def cluster_posts(req: ClusterRequest):
             "window_start": window_start.isoformat(),
             "window_end": now.isoformat(),
         }
-        trend_result = supabase.table("trends").insert(trend_data).execute()
-        trend_id = trend_result.data[0]["id"]
+
+        # Check for similar existing trend in the last 24 hours
+        matched_trend_id = None
+        new_words = set(rep_title[:120].lower().split())
+        for et in existing_trends:
+            et_words = set(et["cluster_label"].lower().split())
+            if not et_words or not new_words:
+                continue
+            overlap = len(et_words.intersection(new_words))
+            total_words = max(len(et_words), len(new_words), 1)
+            # If >60% of words overlap, treat it as the same emerging topic
+            if overlap / total_words > 0.6:
+                matched_trend_id = et["id"]
+                break
+
+        if matched_trend_id:
+            supabase.table("trends").update(trend_data).eq("id", matched_trend_id).execute()
+            trend_id = matched_trend_id
+            # Delete old post associations to rebuild them cleanly
+            supabase.table("trend_posts").delete().eq("trend_id", trend_id).execute()
+        else:
+            trend_data["id"] = f"trend-{uuid.uuid4().hex[:12]}"
+            trend_result = supabase.table("trends").insert(trend_data).execute()
+            trend_id = trend_result.data[0]["id"]
 
         # ── Write trend_posts join rows ───────────────────────────────────────
         join_rows = [{"trend_id": trend_id, "post_id": p["id"]} for p in cluster_posts]
