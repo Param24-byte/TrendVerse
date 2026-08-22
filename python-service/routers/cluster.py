@@ -87,9 +87,7 @@ async def cluster_posts(req: ClusterRequest):
     prev_posts = prev_result.data or []
     total_prev = max(len(prev_posts), 1)
 
-    # ── KMeans clustering ─────────────────────────────────────────────────────
-    k = min(req.n_clusters, len(posts) // 2)
-    kmeans = KMeans(n_clusters=k, random_state=42, n_init="auto")
+
     labels = kmeans.fit_predict(embeddings)
 
     # Fetch existing trends from the last 24 hours to deduplicate

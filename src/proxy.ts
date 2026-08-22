@@ -33,6 +33,27 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
+  const pathname = request.nextUrl.pathname;
+
+  // Protect /api/ingest/* and /api/brief/* endpoints
+  if (pathname.startsWith("/api/ingest") || pathname.startsWith("/api/brief")) {
+    const authHeader = request.headers.get("Authorization");
+    const internalSecret = process.env.INTERNAL_API_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    // 1. Allow internal authorized calls (like run-all, crons)
+    const isInternalService = authHeader === `Bearer ${internalSecret}`;
+    const isVercelCron = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+
+    if (isInternalService || isVercelCron) {
+      return response;
+    }
+
+    // 2. Otherwise, enforce user authentication (from browser settings trigger or brief load)
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
   // Protect settings route
   if (request.nextUrl.pathname.startsWith("/settings") && !user) {
     return NextResponse.redirect(new URL("/login", request.url));

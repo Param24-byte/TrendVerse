@@ -48,22 +48,7 @@ TrendVerse is a full-stack dashboard that tracks and clusters emerging developer
 
 ---
 
-## 2. Environment Configuration
 
-Create a `.env.local` file in the root directory (based on the sample values in `.env.local`):
-
-```bash
-# Supabase Keys (from Project Settings > API)
-NEXT_PUBLIC_SUPABASE_URL=https://<your-project-id>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
-SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
-
-# Gemini API (from Google AI Studio)
-GEMINI_API_KEY=<your-gemini-api-key>
-
-# ML Python Service URL
-ML_SERVICE_URL=http://localhost:8000
-```
 
 ---
 
@@ -109,8 +94,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 ---
 
-## Ingestion & Scrape Execution
-Scrapers execute periodically every 30 minutes. You can also manually trigger ingestion and clustering:
-1. Access the **Settings** page (requires logging in/registering).
-2. Scroll to the **Data Ingestion Pipeline** panel.
-3. Select a niche (e.g. `AI Tools`) and click **Execute Pipeline**. This will fetch raw posts, generate embeddings in batch, run KMeans clustering, and surface the latest trends dynamically.
+

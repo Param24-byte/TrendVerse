@@ -351,22 +351,7 @@ export default function SettingsPage() {
                           </div>
                           
                           <div className="space-y-1.5">
-                            {pipelineResult.results.map((res: any) => (
-                              <div key={res.platform} className="flex items-center justify-between py-1 border-b border-white/5 last:border-0">
-                                <span className="capitalize">{res.platform}:</span>
-                                {res.success ? (
-                                  <span className="text-emerald-400 flex items-center gap-1">
-                                    <CheckCircle2 className="h-3.5 w-3.5" />
-                                    +{res.posts_inserted} posts
-                                  </span>
-                                ) : (
-                                  <span className="text-rose-400 flex items-center gap-1" title={res.error}>
-                                    <XCircle className="h-3.5 w-3.5" />
-                                    Error
-                                  </span>
-                                )}
-                              </div>
-                            ))}
+
                           </div>
                         </div>
                       )}

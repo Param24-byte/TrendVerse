@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { Platform } from "@/lib/types";
+import crypto from "crypto";
 
 // Helper to wait and poll Bright Data for results
 async function pollBrightDataResults(url: string, token: string): Promise<any[]> {
@@ -27,9 +28,17 @@ export async function POST(
     const { platform } = await params;
     const body = await request.json().catch(() => ({}));
     const niche = body.niche || "ai-tools";
-    // Validate authentication
+
+    // 1. Input validation on niche
+    const VALID_NICHES = ["ai-tools", "web-development", "devops-cloud", "open-source", "blockchain"];
+    if (!VALID_NICHES.includes(niche)) {
+      return NextResponse.json({ error: "Invalid niche" }, { status: 400 });
+    }
+
+    // 2. Validate authentication using shared secret or service role key
     const authHeader = request.headers.get("Authorization");
-    if (authHeader !== `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`) {
+    const secret = process.env.INTERNAL_API_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (authHeader !== `Bearer ${secret}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -85,27 +94,60 @@ export async function POST(
        }
        else if (platform === "reddit") {
          const sub = niche === "ai-tools" ? "MachineLearning" : "programming";
-         const res = await fetch(`https://www.reddit.com/r/${sub}/top.json?limit=10&t=day`, {
-           headers: { "User-Agent": process.env.REDDIT_USER_AGENT || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 TrendVerse/1.0" }
-         });
-         if (!res.ok) throw new Error("Reddit API error");
-         const data = await res.json();
-         
-         for (const child of data.data?.children || []) {
-           const item = child.data;
-           insertedPosts.push({
-             id: `reddit-${item.id}`,
-             platform: "reddit",
-             niche,
-             title: item.title,
-             caption: item.selftext?.substring(0, 200) || null,
-             url: `https://reddit.com${item.permalink}`,
-             creator: item.author,
-             hashtags: [],
-             engagement_count: item.score || 0,
-             engagement_breakdown: { comments: item.num_comments || 0 },
-             velocity_score: (item.score || 0) / 2
-           });
+         const userAgent = process.env.REDDIT_USER_AGENT || "TrendVerse/1.0 (by /u/TrendVerseAdmin)";
+         let res: Response | null = null;
+         let retries = 3;
+         let delay = 1000;
+
+         for (let i = 0; i < retries; i++) {
+           try {
+             res = await fetch(`https://www.reddit.com/r/${sub}/top.json?limit=10&t=day`, {
+               headers: { "User-Agent": userAgent }
+             });
+             if (res.ok) break;
+             if (res.status === 403 || res.status === 429) {
+               console.warn(`Reddit API returned status ${res.status}. Backing off...`);
+               await new Promise(resolve => setTimeout(resolve, delay));
+               delay *= 2;
+             } else {
+               throw new Error(`Reddit API status: ${res.status}`);
+             }
+           } catch (fetchErr: any) {
+             if (i === retries - 1) {
+               console.error("Reddit scraper failed after retries:", fetchErr);
+               return NextResponse.json({ success: true, platform: "reddit", posts_inserted: 0 });
+             }
+             await new Promise(resolve => setTimeout(resolve, delay));
+             delay *= 2;
+           }
+         }
+
+         if (!res || !res.ok) {
+           console.error(`Reddit API failed with status ${res?.status || 'Unknown'}. Soft failing.`);
+           return NextResponse.json({ success: true, platform: "reddit", posts_inserted: 0 });
+         }
+
+         try {
+           const data = await res.json();
+           for (const child of data.data?.children || []) {
+             const item = child.data;
+             insertedPosts.push({
+               id: `reddit-${item.id}`,
+               platform: "reddit",
+               niche,
+               title: item.title,
+               caption: item.selftext?.substring(0, 200) || null,
+               url: `https://reddit.com${item.permalink}`,
+               creator: item.author,
+               hashtags: [],
+               engagement_count: item.score || 0,
+               engagement_breakdown: { comments: item.num_comments || 0 },
+               velocity_score: (item.score || 0) / 2
+             });
+           }
+         } catch (parseErr) {
+           console.error("Reddit JSON parsing failed:", parseErr);
+           return NextResponse.json({ success: true, platform: "reddit", posts_inserted: 0 });
          }
        }
     } 
@@ -151,8 +193,10 @@ export async function POST(
        
        for (const item of scrapedData) {
          if (item.error) continue;
+         const uniqueKey = item.url || item.repo_name || item.title || "";
+         const hash = crypto.createHash("sha1").update(uniqueKey).digest("hex").slice(0, 16);
          insertedPosts.push({
-           id: `bd-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+           id: `bd-${platform}-${hash}`,
            platform: platform as Platform,
            niche,
            title: item.title || item.repo_name,

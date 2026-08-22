@@ -7,8 +7,7 @@ import numpy as np
 router = APIRouter(prefix="/embed", tags=["embeddings"])
 
 # Load model once at module level (cached after first load)
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-_model: SentenceTransformer | None = None
+
 
 def get_model() -> SentenceTransformer:
     global _model
@@ -65,17 +64,7 @@ async def embed_batch(req: EmbedBatchRequest):
         # Generate embeddings in a single batch
         vectors = model.encode(texts_to_embed, normalize_embeddings=True)
         
-        # Prepare upsert list
-        upsert_data = []
-        for idx, post in enumerate(valid_posts):
-            upsert_data.append({
-                "id": post["id"],
-                "embedding": vectors[idx].tolist()
-            })
-            
-        # Perform bulk upsert
-        supabase.table("posts").upsert(upsert_data).execute()
-        embedded = len(valid_posts)
+
     else:
         embedded = 0
 
