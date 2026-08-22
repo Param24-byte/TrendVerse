@@ -191,23 +191,49 @@ export async function POST(
 
        const scrapedData = await pollBrightDataResults(resultsUrl, token);
        
+       let loggedSampleForPlatform = false;
        for (const item of scrapedData) {
          if (item.error) continue;
-         const uniqueKey = item.url || item.repo_name || item.title || "";
+
+         // Broad title fallback chain covering known Bright Data field variants:
+         //  - GitHub: title, repo_name, repository_title
+         //  - HackerNews: title, heading
+         //  - ProductHunt: name, product_name, tagline
+         //  - HuggingFace: model_name, model_id, name
+         const resolvedTitle =
+           item.title || item.repo_name || item.name || item.product_name ||
+           item.model_name || item.heading || item.repository_title ||
+           item.tagline || item.model_id || null;
+
+         if (!resolvedTitle) {
+           // Log ONE sample raw record per platform so we can identify missing keys
+           if (!loggedSampleForPlatform) {
+             console.warn(
+               `[ingest/${platform}] Could not resolve title. Sample raw keys:`,
+               JSON.stringify(Object.keys(item)),
+               "Sample record (first 500 chars):",
+               JSON.stringify(item).substring(0, 500)
+             );
+             loggedSampleForPlatform = true;
+           }
+           continue; // Skip untitled posts entirely
+         }
+
+         const uniqueKey = item.url || item.repo_name || resolvedTitle || "";
          const hash = crypto.createHash("sha1").update(uniqueKey).digest("hex").slice(0, 16);
          insertedPosts.push({
            id: `bd-${platform}-${hash}`,
            platform: platform as Platform,
            niche,
-           title: item.title || item.repo_name,
-           caption: item.description || null,
+           title: resolvedTitle,
+           caption: item.description || item.tagline || null,
            url: item.url,
-           creator: item.author || null,
-           hashtags: [item.language].filter(Boolean),
-           engagement_count: item.points || item.stars_total || 0,
-           engagement_breakdown: { stars_today: item.stars_today || 0, forks: item.forks || 0, comments: item.comment_count || 0 },
+           creator: item.author || item.maker || item.user || null,
+           hashtags: [item.language, item.topic].filter(Boolean),
+           engagement_count: item.points || item.stars_total || item.votes_count || item.likes || 0,
+           engagement_breakdown: { stars_today: item.stars_today || 0, forks: item.forks || 0, comments: item.comment_count || item.comments_count || 0 },
            rank_position: item.rank,
-           velocity_score: (item.points || item.stars_today || 0) / (item.rank || 1)
+           velocity_score: (item.points || item.stars_today || item.votes_count || 0) / (item.rank || 1)
          });
        }
     }

@@ -35,8 +35,8 @@ export async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // Protect /api/ingest/* and /api/brief/* endpoints
-  if (pathname.startsWith("/api/ingest") || pathname.startsWith("/api/brief")) {
+  // Protect /api/ingest/*, /api/brief/*, and /api/ml/* endpoints
+  if (pathname.startsWith("/api/ingest") || pathname.startsWith("/api/brief") || pathname.startsWith("/api/ml")) {
     const authHeader = request.headers.get("Authorization");
     const internalSecret = process.env.INTERNAL_API_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
     

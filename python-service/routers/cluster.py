@@ -87,7 +87,9 @@ async def cluster_posts(req: ClusterRequest):
     prev_posts = prev_result.data or []
     total_prev = max(len(prev_posts), 1)
 
-
+    # ── KMeans clustering ─────────────────────────────────────────────────────
+    k = max(1, min(req.n_clusters, len(posts) // 2))
+    kmeans = KMeans(n_clusters=k, random_state=42, n_init="auto")
     labels = kmeans.fit_predict(embeddings)
 
     # Fetch existing trends from the last 24 hours to deduplicate
@@ -110,7 +112,22 @@ async def cluster_posts(req: ClusterRequest):
         distances = np.linalg.norm(cluster_embeddings - centroid, axis=1)
         rep_idx = int(np.argmin(distances))
         rep_post = cluster_posts[rep_idx]
-        rep_title = rep_post.get("title") or rep_post.get("caption") or "Untitled Trend"
+
+        # Try to find a real title — first from the representative post,
+        # then scan all cluster posts for one with a non-placeholder title
+        UNTITLED_MARKERS = {"untitled", "untitled trend", "untitled scraped post", ""}
+        rep_title = rep_post.get("title") or rep_post.get("caption") or ""
+        if rep_title.strip().lower() in UNTITLED_MARKERS:
+            # Scan other posts in the cluster for a real title
+            for p in sorted(cluster_posts, key=lambda x: x.get("engagement_count", 0) or 0, reverse=True):
+                candidate = p.get("title") or p.get("caption") or ""
+                if candidate.strip().lower() not in UNTITLED_MARKERS:
+                    rep_title = candidate
+                    break
+
+        # Safety net: skip clusters that still have no usable title
+        if rep_title.strip().lower() in UNTITLED_MARKERS:
+            continue
 
         # Metrics
         platforms = list(set(p["platform"] for p in cluster_posts))

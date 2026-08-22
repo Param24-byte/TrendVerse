@@ -48,7 +48,41 @@ TrendVerse is a full-stack dashboard that tracks and clusters emerging developer
 
 ---
 
+## 2. Environment Configuration
 
+Create a `.env.local` file in the root directory:
+
+```bash
+# Supabase Keys (from Project Settings > API)
+NEXT_PUBLIC_SUPABASE_URL=https://<your-project-id>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+
+# Gemini API (from Google AI Studio)
+GEMINI_API_KEY=<your-gemini-api-key>
+
+# Internal API Shared Secret (Auth-gates ingest/brief/ml endpoints)
+INTERNAL_API_SECRET=<your-custom-shared-secret>
+
+# Vercel Cron Secret (Required for automated scheduler authorization)
+CRON_SECRET=<your-vercel-cron-secret>
+
+# Bright Data Scrapers (Required for paid platform scrapers)
+BRIGHTDATA_API_TOKEN=<your-brightdata-token>
+BRIGHTDATA_GITHUB_SCRAPER_ID=<your-github-scraper-id>
+BRIGHTDATA_HACKERNEWS_SCRAPER_ID=<your-hackernews-scraper-id>
+BRIGHTDATA_PRODUCTHUNT_SCRAPER_ID=<your-producthunt-scraper-id>
+BRIGHTDATA_HUGGINGFACE_SCRAPER_ID=<your-huggingface-scraper-id>
+
+# Reddit API Configuration
+REDDIT_USER_AGENT=TrendVerse/1.0 (by /u/yourusername)
+
+# ML Python Service URL
+ML_SERVICE_URL=http://localhost:8000
+```
+
+> [!NOTE]
+> GitHub, Hacker News, Product Hunt, and Hugging Face scrapers utilize Bright Data Scraper Studio IDs. If these are not configured, they will fail gracefully and report detailed error messages, while native scrapers (Dev.to, Reddit, Stack Overflow) remain fully functional.
 
 ---
 
@@ -94,4 +128,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 ---
 
-
+## Ingestion & Scrape Execution
+Scraper execution is scheduled periodically every 30 minutes using Vercel Cron (`vercel.json`). You can also manually trigger ingestion and clustering:
+1. Access the **Settings** page (requires logging in/registering).
+2. Scroll to the **Data Ingestion Pipeline** panel.
+3. Select a niche (e.g. `AI Tools`) and click **Execute Pipeline**. This will fetch raw posts, generate embeddings in batch, run KMeans clustering, and surface the latest trends dynamically (governed by a 15-minute execution cooldown).
