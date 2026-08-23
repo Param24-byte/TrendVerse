@@ -161,8 +161,26 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const niche = searchParams.get("niche") || "ai-tools";
-    return await executePipeline(niche);
+    const nicheParam = searchParams.get("niche");
+
+    // If a specific niche is requested, run just that one
+    if (nicheParam) {
+      return await executePipeline(nicheParam);
+    }
+
+    // Otherwise (cron job), iterate through ALL niches
+    const results: Record<string, any> = {};
+    for (const niche of VALID_NICHES) {
+      try {
+        const res = await executePipeline(niche);
+        const body = await res.json();
+        results[niche] = body;
+      } catch (err: any) {
+        results[niche] = { error: err.message };
+      }
+    }
+
+    return NextResponse.json({ niches_processed: Object.keys(results).length, results });
   } catch (error: any) {
     console.error(`Orchestrator GET error:`, error);
     return NextResponse.json(

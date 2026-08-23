@@ -25,10 +25,10 @@ TrendVerse is a full-stack dashboard that tracks and clusters emerging developer
   └────────────────────┘
 ```
 
-1. **Frontend & Orchestration**: Next.js 16 (App Router) handles the UI, ingestion orchestration (`api/ingest`), and direct Gemini AI calls (`api/brief`).
-2. **Backend**: Python FastAPI microservice dedicated purely to math: scikit-learn (KMeans clustering), SentenceTransformers (`all-MiniLM-L6-v2` for 384-dimensional vector embeddings).
-3. **Database**: Supabase PostgreSQL with `pgvector` enabled for similarity search and Row Level Security (RLS).
-4. **AI Generation**: Gemini 2.5 Flash for structured Markdown Research Brief synthesis, triggered securely via the Next.js API.
+1. **Frontend & Orchestration**: Next.js 16 (App Router) handles the UI and all data ingestion. Scraping is performed entirely in TypeScript via `api/ingest/[platform]/route.ts` routes (using Bright Data for GitHub/HN/PH/HF, and native HTTP for Dev.to/Reddit/Stack Overflow). The orchestrator at `api/ingest/run-all/route.ts` fans out across all platforms and triggers the ML pipeline. There are no Python scraper scripts — the `python-service/` directory is dedicated purely to ML.
+2. **ML Backend**: Python FastAPI microservice (`python-service/`) dedicated purely to math: scikit-learn (KMeans clustering), SentenceTransformers (`all-MiniLM-L6-v2` for 384-dimensional vector embeddings). Auth-gated with a bearer token.
+3. **Database**: Supabase PostgreSQL with `pgvector` enabled for similarity search and Row Level Security (RLS). Platform slugs enforced via `CHECK` constraint.
+4. **AI Generation**: Gemini 2.5 Flash for structured Markdown Research Brief synthesis, triggered securely via the Next.js API (`api/brief`).
 
 ---
 

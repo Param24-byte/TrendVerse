@@ -9,8 +9,10 @@ import { useTrends } from "@/hooks/useTrends";
 import { usePosts } from "@/hooks/usePosts";
 import ShimmerText from "@/components/kokonutui/shimmer-text";
 import { motion, AnimatePresence } from "framer-motion";
-import { PLATFORM_META, Platform } from "@/lib/types";
+import { PLATFORM_META, Platform, NICHES } from "@/lib/types";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import * as LucideIcons from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
   const [currentNiche, setCurrentNiche] = useState("ai-tools");
@@ -106,9 +108,30 @@ export default function DashboardPage() {
                   text="Trending Now"
                   className="text-3xl font-extrabold tracking-tight mb-2 text-white"
                 />
-                <p className="text-slate-400 text-xs sm:text-sm max-w-xl leading-relaxed">
+                <p className="text-slate-400 text-xs sm:text-sm max-w-xl leading-relaxed mb-4">
                   Real-time developer trends clustered from GitHub, Hacker News, Product Hunt, and Hugging Face.
                 </p>
+                <div className="flex flex-wrap gap-2">
+                  {NICHES.map((niche) => {
+                    const isActive = niche.id === currentNiche;
+                    const Icon = (LucideIcons as any)[niche.lucideIcon] || LucideIcons.Circle;
+                    return (
+                      <button
+                        key={niche.id}
+                        onClick={() => setCurrentNiche(niche.id)}
+                        className={cn(
+                          "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all",
+                          isActive
+                            ? "bg-indigo-600 text-white"
+                            : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-white"
+                        )}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {niche.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Platform Share Donut Chart */}
@@ -158,6 +181,16 @@ export default function DashboardPage() {
               >
                 {(trendsLoading || postsLoading) ? (
                   <SkeletonGrid />
+                ) : trends.length === 0 && posts.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-24 text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-6">
+                      <LucideIcons.SearchX className="w-8 h-8 text-slate-500" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">No data for this niche yet</h3>
+                    <p className="text-slate-400 text-sm max-w-md mb-6">
+                      This niche hasn't been scraped yet. Go to <strong className="text-white">Settings → Data Ingestion Pipeline</strong> and run the pipeline for this niche, or wait for the next automated cron cycle (every 30 minutes).
+                    </p>
+                  </div>
                 ) : (
                   <>
                     {/* Top row: The aggregated clusters */}
