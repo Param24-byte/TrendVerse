@@ -216,7 +216,7 @@ export default function SettingsPage() {
                         >
                           {NICHES.map((n) => (
                             <option key={n.id} value={n.id} className="bg-[#0e1324]">
-                              {n.icon} {n.label}
+                              {n.label}
                             </option>
                           ))}
                         </select>

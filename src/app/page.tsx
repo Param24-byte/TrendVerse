@@ -104,7 +104,7 @@ export default function DashboardPage() {
               <div className="flex-1">
                 <ShimmerText
                   text="Trending Now"
-                  className="text-3xl font-extrabold tracking-tight mb-2 bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent"
+                  className="text-3xl font-extrabold tracking-tight mb-2 text-white"
                 />
                 <p className="text-slate-400 text-xs sm:text-sm max-w-xl leading-relaxed">
                   Real-time developer trends clustered from GitHub, Hacker News, Product Hunt, and Hugging Face.

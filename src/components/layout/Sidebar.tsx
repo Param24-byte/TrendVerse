@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Settings, BookOpen, Activity, ChevronsRight, User } from "lucide-react";
+import { BarChart3, Settings, Activity, ChevronsRight, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -25,8 +25,8 @@ export function Sidebar() {
       {/* Top Expand Icon & Brand */}
       <div 
         className={cn(
-          "mb-8 flex h-10 items-center text-white/70 hover:text-white cursor-pointer transition-colors",
-          isOpen ? "w-full justify-between px-6" : "w-10 justify-center"
+          "mb-8 flex h-11 items-center text-white/70 hover:text-white cursor-pointer transition-colors",
+          isOpen ? "w-full justify-between px-6" : "w-11 justify-center"
         )}
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -46,8 +46,8 @@ export function Sidebar() {
               href={item.href}
               title={!isOpen ? item.name : undefined}
               className={cn(
-                "group relative flex h-10 items-center rounded-xl transition-all duration-200",
-                isOpen ? "px-4 w-full justify-start gap-3" : "w-10 justify-center mx-auto"
+                "group relative flex h-11 items-center rounded-xl transition-all duration-200",
+                isOpen ? "px-4 w-full justify-start gap-3" : "w-11 justify-center mx-auto"
               )}
             >
               {isActive && (
@@ -81,8 +81,8 @@ export function Sidebar() {
         <Link
           href="/settings"
           className={cn(
-            "flex h-10 items-center bg-white/10 text-white hover:bg-white/20 transition-all",
-            isOpen ? "w-full px-4 gap-3 justify-start rounded-xl" : "w-10 justify-center mx-auto rounded-full"
+            "flex h-11 items-center bg-white/10 text-white hover:bg-white/20 transition-all",
+            isOpen ? "w-full px-4 gap-3 justify-start rounded-xl" : "w-11 justify-center mx-auto rounded-full"
           )}
         >
           <User className="h-5 w-5 shrink-0" />

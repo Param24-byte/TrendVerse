@@ -6,6 +6,7 @@ from db import supabase
 from datetime import datetime, timedelta, timezone
 import numpy as np
 import uuid
+import json
 
 router = APIRouter(prefix="/cluster", tags=["clustering"])
 
@@ -67,7 +68,6 @@ async def cluster_posts(req: ClusterRequest):
         )
 
     # ── Build embedding matrix ────────────────────────────────────────────────
-    import json
     parsed_embeddings = []
     for p in posts:
         emb = p["embedding"]

@@ -45,8 +45,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 
         {/* Ambient Aurora Orbs */}
         <div className="orb-1 fixed pointer-events-none z-[-1] rounded-full filter blur-[120px] opacity-[0.14] bg-indigo-600 w-[550px] h-[550px]" style={{ top: "-10%", left: "-10%" }} />
-        <div className="orb-2 fixed pointer-events-none z-[-1] rounded-full filter blur-[120px] opacity-[0.14] bg-cyan-600 w-[450px] h-[450px]" style={{ top: "40%", right: "-10%" }} />
-        <div className="orb-3 fixed pointer-events-none z-[-1] rounded-full filter blur-[120px] opacity-[0.12] bg-violet-600 w-[400px] h-[400px]" style={{ bottom: "-10%", left: "30%" }} />
+        <div className="orb-2 fixed pointer-events-none z-[-1] rounded-full filter blur-[120px] opacity-[0.14] bg-indigo-600 w-[450px] h-[450px]" style={{ top: "40%", right: "-10%" }} />
+        <div className="orb-3 fixed pointer-events-none z-[-1] rounded-full filter blur-[120px] opacity-[0.12] bg-indigo-600 w-[400px] h-[400px]" style={{ bottom: "-10%", left: "30%" }} />
 
         <TooltipProvider>
           {children}

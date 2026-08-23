@@ -76,11 +76,11 @@ export interface ResearchReport {
 
 // ─── Niche definitions ────────────────────────────────────────────────────────
 export const NICHES = [
-  { id: "ai-tools", label: "AI & Machine Learning", icon: "🤖" },
-  { id: "web-development", label: "Web Development", icon: "🌐" },
-  { id: "devops-cloud", label: "DevOps & Cloud", icon: "☁️" },
-  { id: "open-source", label: "Open Source", icon: "💻" },
-  { id: "blockchain", label: "Blockchain & Web3", icon: "⛓️" },
+  { id: "ai-tools", label: "AI & Machine Learning", lucideIcon: "Bot" },
+  { id: "web-development", label: "Web Development", lucideIcon: "Globe" },
+  { id: "devops-cloud", label: "DevOps & Cloud", lucideIcon: "Cloud" },
+  { id: "open-source", label: "Open Source", lucideIcon: "Code" },
+  { id: "blockchain", label: "Blockchain & Web3", lucideIcon: "Link" },
 ] as const;
 
 export type NicheId = (typeof NICHES)[number]["id"];

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NICHES, NicheId } from "@/lib/types";
+import * as LucideIcons from "lucide-react";
 import { ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ interface NicheSelectorProps {
 export function NicheSelector({ currentNiche, onNicheChange }: NicheSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const activeNiche = NICHES.find((n) => n.id === currentNiche) || NICHES[0];
+  const ActiveIcon = (LucideIcons as any)[activeNiche.lucideIcon] || LucideIcons.Circle;
 
   return (
     <div className="relative">
@@ -21,7 +23,7 @@ export function NicheSelector({ currentNiche, onNicheChange }: NicheSelectorProp
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-white/10 focus:outline-none"
       >
-        <span className="text-lg">{activeNiche.icon}</span>
+        <ActiveIcon className="h-4 w-4" />
         <span>{activeNiche.label}</span>
         <ChevronDown
           className={cn("h-4 w-4 text-slate-400 transition-transform duration-200", isOpen && "rotate-180")}
@@ -44,6 +46,7 @@ export function NicheSelector({ currentNiche, onNicheChange }: NicheSelectorProp
             >
               {NICHES.map((niche) => {
                 const isActive = niche.id === currentNiche;
+                const NicheIcon = (LucideIcons as any)[niche.lucideIcon] || LucideIcons.Circle;
                 return (
                   <button
                     key={niche.id}
@@ -59,7 +62,7 @@ export function NicheSelector({ currentNiche, onNicheChange }: NicheSelectorProp
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg">{niche.icon}</span>
+                      <NicheIcon className={cn("h-4 w-4", isActive ? "text-indigo-400" : "text-slate-400")} />
                       <span className={cn("font-medium", isActive && "text-indigo-400")}>
                         {niche.label}
                       </span>
