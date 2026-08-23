@@ -105,36 +105,36 @@
 
 /* ── Dark theme (forced via class on <html>) ─────────────────────────────── */
 .dark {
-  --background:   #0a0f1e;
+  --background:   #000000;
   --foreground:   oklch(0.97 0 0);
-  --card:         #0f1629;
+  --card:         #08080a;
   --card-foreground: oklch(0.97 0 0);
-  --popover:      #141d35;
+  --popover:      #0b0b0e;
   --popover-foreground: oklch(0.97 0 0);
   --primary:      #6366f1;
   --primary-foreground: oklch(0.985 0 0);
-  --secondary:    #141d35;
+  --secondary:    #0b0b0e;
   --secondary-foreground: oklch(0.97 0 0);
-  --muted:        #1a2540;
+  --muted:        #0f0f14;
   --muted-foreground: oklch(0.65 0 0);
   --accent:       #6366f1;
   --accent-foreground: oklch(0.985 0 0);
   --destructive:  #f43f5e;
-  --border:       rgba(255, 255, 255, 0.08);
-  --input:        rgba(255, 255, 255, 0.07);
+  --border:       rgba(255, 255, 255, 0.06);
+  --input:        rgba(255, 255, 255, 0.05);
   --ring:         #6366f1;
   --chart-1:      #6366f1;
   --chart-2:      #22d3ee;
   --chart-3:      #8b5cf6;
   --chart-4:      #10b981;
   --chart-5:      #f59e0b;
-  --sidebar:      #0f1629;
+  --sidebar:      #000000;
   --sidebar-foreground: oklch(0.97 0 0);
   --sidebar-primary: #6366f1;
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: #141d35;
+  --sidebar-accent: #0b0b0e;
   --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-border: rgba(255, 255, 255, 0.04);
   --sidebar-ring:  #6366f1;
 }
 
@@ -169,15 +169,15 @@
   .glass {
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    background: rgba(15, 22, 41, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .glass-hover {
     transition: all 0.2s ease;
   }
   .glass-hover:hover {
-    background: rgba(20, 29, 53, 0.75);
+    background: rgba(11, 11, 14, 0.75);
     border-color: rgba(99, 102, 241, 0.3);
     transform: translateY(-2px);
     box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
@@ -202,11 +202,11 @@
   .bg-animated-gradient {
     background: linear-gradient(
       135deg,
-      #0a0f1e 0%,
-      #0f1629 25%,
-      #0d1530 50%,
-      #0a0f1e 75%,
-      #0f1629 100%
+      #000000 0%,
+      #040406 25%,
+      #07070b 50%,
+      #000000 75%,
+      #040406 100%
     );
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
@@ -261,3 +261,19 @@
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
+
+@keyframes float-1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(40px, 50px) scale(1.1); }
+}
+@keyframes float-2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(-50px, 30px) scale(0.95); }
+}
+@keyframes float-3 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(30px, -40px) scale(1.05); }
+}
+.orb-1 { animation: float-1 22s ease-in-out infinite; }
+.orb-2 { animation: float-2 28s ease-in-out infinite; }
+.orb-3 { animation: float-3 25s ease-in-out infinite; }

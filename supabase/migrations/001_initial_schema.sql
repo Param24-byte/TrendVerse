@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS sources (
 
 -- ── Table: posts ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS posts (
-  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id                    TEXT PRIMARY KEY,
   source_id             UUID REFERENCES sources(id) ON DELETE SET NULL,
   platform              TEXT NOT NULL,
   niche                 TEXT NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS posts (
 
 -- ── Table: trends ─────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS trends (
-  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id                    TEXT PRIMARY KEY,
   niche                 TEXT NOT NULL,
   cluster_label         TEXT,
   representative_title  TEXT,
@@ -56,8 +56,8 @@ CREATE TABLE IF NOT EXISTS trends (
 
 -- ── Table: trend_posts (join) ─────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS trend_posts (
-  trend_id  UUID NOT NULL REFERENCES trends(id) ON DELETE CASCADE,
-  post_id   UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  trend_id  TEXT NOT NULL REFERENCES trends(id) ON DELETE CASCADE,
+  post_id   TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
   PRIMARY KEY (trend_id, post_id)
 );
 
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS trend_posts (
 CREATE TABLE IF NOT EXISTS research_reports (
   id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   niche                 TEXT NOT NULL,
-  trend_id              UUID REFERENCES trends(id) ON DELETE CASCADE,
+  trend_id              TEXT REFERENCES trends(id) ON DELETE CASCADE,
   brief_markdown        TEXT,
   key_hashtags          TEXT[],
   top_creators          TEXT[],

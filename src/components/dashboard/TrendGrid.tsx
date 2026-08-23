@@ -42,7 +42,12 @@ export function TrendGrid({ trends }: TrendGridProps) {
       className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
     >
       {trends.map((trend, index) => (
-        <motion.div key={trend.id} variants={itemVariants}>
+        <motion.div
+          key={trend.id}
+          variants={itemVariants}
+          layout
+          transition={{ type: "spring", stiffness: 350, damping: 25 }}
+        >
           <TrendCard trend={trend} index={index} />
         </motion.div>
       ))}

@@ -1,6 +1,9 @@
-import { createBrowserClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-export function createClient() {
+export async function createClient() {
+  const cookieStore = await cookies();
+
   const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
     let response = await fetch(url, options);
 
@@ -13,7 +16,7 @@ export function createClient() {
           (body.code === "PGRST303" ||
             (body.message && body.message.includes("JWT issued at future")))
         ) {
-          console.warn("Supabase JWT clock skew detected (PGRST303). Retrying in 1 second...");
+          console.warn("Supabase server-side JWT clock skew detected (PGRST303). Retrying in 1 second...");
 
           // Wait 1 second and retry once
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -47,10 +50,24 @@ export function createClient() {
     return response;
   };
 
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Can be ignored if handled by middleware
+          }
+        },
+      },
       global: {
         fetch: customFetch,
       },

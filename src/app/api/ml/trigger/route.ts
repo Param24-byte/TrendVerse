@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const clusterRes = await fetch(`${mlServiceUrl}/cluster`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ niche, window_hours: 24, min_posts: 2 }) // We set min_posts to 2 because we only have 4 dummy posts!
+      body: JSON.stringify({ niche, window_hours: 24, n_clusters: 5 })
     });
     const clusterData = await clusterRes.json().catch(() => null);
 

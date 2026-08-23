@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 
 export async function POST(
   request: Request,
@@ -27,13 +27,7 @@ export async function POST(
       return NextResponse.json({ error: "Trend not found" }, { status: 404 });
     }
 
-    // If we already have a brief, just return it instead of regenerating
-    if (trend.research_brief) {
-      return NextResponse.json({ success: true, brief: trend.research_brief });
-    }
-
-    // 2. Fetch associated posts for context
-    // We join trend_posts with posts to get the actual post content
+    // 2. Fetch associated posts for context (including URL and creator)
     const { data: trendPosts, error: postsError } = await supabase
       .from("trend_posts")
       .select(`
@@ -43,7 +37,8 @@ export async function POST(
           caption,
           hashtags,
           engagement_count,
-          url
+          url,
+          creator
         )
       `)
       .eq("trend_id", trendId);
@@ -55,43 +50,103 @@ export async function POST(
 
     const posts = trendPosts.map(tp => tp.posts);
 
-    // 3. Construct the prompt
+    // 3. Construct the prompt with creators and url data
     const prompt = `
-Act as an expert tech analyst. Write a concise, 2-3 paragraph research brief on this emerging trend: "${trend.cluster_label}".
+Act as an expert tech analyst. Write a research report on this emerging trend: "${trend.cluster_label}".
 
 Here is some raw data/posts from the community discussing this trend:
 ${posts.map((p: any) => `
 - Title: ${p.title}
   Caption: ${p.caption || "None"}
-  Engagement: ${p.engagement_count}
+  Engagement: ${p.engagement_count || 0}
+  Creator: ${p.creator || "None"}
+  URL: ${p.url || "None"}
 `).join("\n")}
 
-Your goal is to:
-1. Summarize what this trend is about and why it's gaining traction.
-2. Provide actionable insights for a developer or founder looking to capitalize on this trend.
-Keep the formatting clean using Markdown (bolding, bullet points). Do not include any filler introductions like "Here is your brief".
+Your goal is to extract:
+1. A concise, 2-3 paragraph research brief on why this is gaining traction and actionable insights for a founder or developer.
+2. A list of 3-5 relevant developer hashtags or topics.
+3. 2-4 key creators, authors, or organizations from the context (e.g. usernames or repositories owner).
+4. 2-4 recommended resource links from the context posts (e.g. github URLs, product hunt URLs, etc.).
 `;
 
-    // 4. Generate the brief using Gemini 3.6 Flash
+    // 4. Generate structured JSON report using Gemini
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-2.5-flash',
       contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            brief_markdown: { 
+              type: Type.STRING, 
+              description: "A concise 2-3 paragraph research brief in clean Markdown." 
+            },
+            key_hashtags: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+              description: "Array of 3-5 relevant developer hashtags."
+            },
+            top_creators: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+              description: "Array of 2-4 creator handles or organization names."
+            },
+            recommended_resources: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  title: { type: Type.STRING },
+                  url: { type: Type.STRING }
+                },
+                required: ["title", "url"]
+              },
+              description: "Array of resource links."
+            }
+          },
+          required: ["brief_markdown", "key_hashtags", "top_creators", "recommended_resources"]
+        }
+      }
     });
 
-    const brief = response.text;
+    const reportData = JSON.parse(response.text || "{}");
 
-    if (!brief) {
-      throw new Error("Gemini returned an empty response");
+    if (!reportData.brief_markdown) {
+      throw new Error("Gemini returned an empty brief");
     }
 
-    // 5. Save the brief back to the database
+    // 5. Save the report to research_reports
+    const { data: report, error: reportError } = await supabase
+      .from("research_reports")
+      .insert({
+        niche: trend.niche,
+        trend_id: trendId,
+        brief_markdown: reportData.brief_markdown,
+        key_hashtags: reportData.key_hashtags,
+        top_creators: reportData.top_creators,
+        recommended_resources: reportData.recommended_resources
+      })
+      .select()
+      .single();
+
+    if (reportError) {
+      console.error("Error creating research report:", reportError);
+    }
+
+    // 6. Save the brief back to the legacy trends column for dashboard compatibility
     await supabase
       .from("trends")
-      .update({ research_brief: brief })
+      .update({ research_brief: reportData.brief_markdown })
       .eq("id", trendId);
 
-    return NextResponse.json({ success: true, brief });
+    return NextResponse.json({ 
+      success: true, 
+      brief: reportData.brief_markdown,
+      reportId: report?.id 
+    });
 
   } catch (error: any) {
     console.error("Error generating brief:", error);
