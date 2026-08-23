@@ -7,9 +7,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-outfit), 'Outfit', system-ui, sans-serif;
-  --font-heading: var(--font-outfit), 'Outfit', system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), 'JetBrains Mono', monospace;
+  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: var(--font-serif), 'EB Garamond', 'ITC Garamond', 'Cambon', Georgia, serif;
+  --font-serif: var(--font-serif), 'EB Garamond', 'ITC Garamond', 'Cambon', Georgia, serif;
+  --font-mono: var(--font-mono), 'Space Mono', 'Courier Prime', ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -44,98 +45,100 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
 
-  /* ── TrendVerse custom colours ───────────────────────────────────────────── */
-  --color-navy:   var(--navy);
-  --color-navy-2: var(--navy-2);
-  --color-navy-3: var(--navy-3);
-  --color-indigo: var(--indigo);
-  --color-cyan:   var(--cyan);
-  --color-violet: var(--violet);
-  --color-emerald: var(--emerald);
-  --color-amber:  var(--amber);
-  --color-rose:   var(--rose);
+  /* ── TrendVerse (OpenClaw Theme) custom colours ───────────────────────── */
+  --color-navy:   #0d0d10;
+  --color-navy-2: #121216;
+  --color-navy-3: #18181c;
+  --color-indigo: #f5654a;
+  --color-coral:  #f5654a;
+  --color-sea:    #4fc8ae;
+  --color-cyan:   #4fc8ae;
+  --color-violet: #e05540;
+  --color-emerald: #4fc8ae;
+  --color-amber:  #fbbf24;
+  --color-rose:   #f5654a;
 }
 
 /* ── Light / fallback (we force dark in layout, but keep for completeness) ── */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --background: #000000;
+  --foreground: #ededed;
+  --card: #08080a;
+  --card-foreground: #ededed;
+  --popover: #0d0d10;
+  --popover-foreground: #ededed;
+  --primary: #f5654a;
+  --primary-foreground: #101012;
+  --secondary: #121216;
+  --secondary-foreground: #ededed;
+  --muted: #18181c;
+  --muted-foreground: #bcbcc4;
+  --accent: #f5654a;
+  --accent-foreground: #101012;
+  --destructive: #b23a28;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.06);
+  --ring: #4fc8ae;
+  --chart-1: #f5654a;
+  --chart-2: #4fc8ae;
+  --chart-3: #e05540;
+  --chart-4: #2fa48d;
+  --chart-5: #fbbf24;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: #000000;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #f5654a;
+  --sidebar-primary-foreground: #101012;
+  --sidebar-accent: #121216;
+  --sidebar-accent-foreground: #ededed;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #4fc8ae;
 
-  /* TrendVerse palette */
-  --navy:    #0a0f1e;
-  --navy-2:  #0f1629;
-  --navy-3:  #141d35;
-  --indigo:  #6366f1;
-  --cyan:    #22d3ee;
-  --violet:  #8b5cf6;
-  --emerald: #10b981;
-  --amber:   #f59e0b;
-  --rose:    #f43f5e;
+  /* OpenClaw palette */
+  --navy:    #0d0d10;
+  --navy-2:  #121216;
+  --navy-3:  #18181c;
+  --indigo:  #f5654a;
+  --cyan:    #4fc8ae;
+  --violet:  #e05540;
+  --emerald: #4fc8ae;
+  --amber:   #fbbf24;
+  --rose:    #f5654a;
 }
 
 /* ── Dark theme (forced via class on <html>) ─────────────────────────────── */
 .dark {
   --background:   #000000;
-  --foreground:   oklch(0.97 0 0);
+  --foreground:   #ededed;
   --card:         #08080a;
-  --card-foreground: oklch(0.97 0 0);
-  --popover:      #0b0b0e;
-  --popover-foreground: oklch(0.97 0 0);
-  --primary:      #6366f1;
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary:    #0b0b0e;
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted:        #0f0f14;
-  --muted-foreground: oklch(0.65 0 0);
-  --accent:       #6366f1;
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive:  #f43f5e;
-  --border:       rgba(255, 255, 255, 0.06);
-  --input:        rgba(255, 255, 255, 0.05);
-  --ring:         #6366f1;
-  --chart-1:      #6366f1;
-  --chart-2:      #22d3ee;
-  --chart-3:      #8b5cf6;
-  --chart-4:      #10b981;
-  --chart-5:      #f59e0b;
+  --card-foreground: #ededed;
+  --popover:      #0d0d10;
+  --popover-foreground: #ededed;
+  --primary:      #f5654a;
+  --primary-foreground: #101012;
+  --secondary:    #121216;
+  --secondary-foreground: #ededed;
+  --muted:        #18181c;
+  --muted-foreground: #bcbcc4;
+  --accent:       #f5654a;
+  --accent-foreground: #101012;
+  --destructive:  #b23a28;
+  --border:       rgba(255, 255, 255, 0.08);
+  --input:        rgba(255, 255, 255, 0.06);
+  --ring:         #4fc8ae;
+  --chart-1:      #f5654a;
+  --chart-2:      #4fc8ae;
+  --chart-3:      #e05540;
+  --chart-4:      #2fa48d;
+  --chart-5:      #fbbf24;
   --sidebar:      #000000;
-  --sidebar-foreground: oklch(0.97 0 0);
-  --sidebar-primary: #6366f1;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: #0b0b0e;
-  --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: rgba(255, 255, 255, 0.04);
-  --sidebar-ring:  #6366f1;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #f5654a;
+  --sidebar-primary-foreground: #101012;
+  --sidebar-accent: #121216;
+  --sidebar-accent-foreground: #ededed;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring:  #4fc8ae;
 }
 
 /* ── Base styles ──────────────────────────────────────────────────────────── */
@@ -145,21 +148,35 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: var(--font-sans);
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: var(--font-heading);
+    letter-spacing: -0.015em;
+  }
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+  ::selection {
+    background: #f5654a;
+    color: #101012;
   }
 
   /* Custom scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.35);
+    background: rgba(245, 101, 74, 0.35);
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.6);
+    background: rgba(245, 101, 74, 0.6);
   }
 }
 
@@ -169,18 +186,18 @@
   .glass {
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .glass-hover {
     transition: all 0.2s ease;
   }
   .glass-hover:hover {
-    background: rgba(11, 11, 14, 0.75);
-    border-color: rgba(99, 102, 241, 0.3);
+    background: rgba(18, 18, 22, 0.85);
+    border-color: rgba(245, 101, 74, 0.35);
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15); /* Keep as the primary standard shadow */
+    box-shadow: 0 12px 40px rgba(245, 101, 74, 0.12);
   }
 
   /* Animated gradient background */
@@ -188,27 +205,30 @@
     background: linear-gradient(
       135deg,
       #000000 0%,
-      #040406 25%,
-      #07070b 50%,
+      #060608 25%,
+      #0b0b0e 50%,
       #000000 75%,
-      #040406 100%
+      #060608 100%
     );
     background-size: 400% 400%;
     animation: gradient-shift 15s ease infinite;
   }
 
-  /* Consolidated Glow Effect (Indigo only) */
-  .glow-indigo {
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  /* Glow Effects */
+  .glow-coral {
+    box-shadow: 0 0 24px rgba(245, 101, 74, 0.35);
+  }
+  .glow-mint {
+    box-shadow: 0 0 24px rgba(79, 200, 174, 0.35);
   }
 
   /* Platform badge colours */
-  .badge-github   { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border-color: rgba(139, 92, 246, 0.3); }
-  .badge-hackernews { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
-  .badge-producthunt { background: rgba(244, 63, 94, 0.15); color: #fb7185; border-color: rgba(244, 63, 94, 0.3); }
-  .badge-huggingface { background: rgba(34, 211, 238, 0.15); color: #22d3ee; border-color: rgba(34, 211, 238, 0.3); }
-  .badge-devto    { background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); }
-  .badge-reddit   { background: rgba(249, 115, 22, 0.15); color: #fb923c; border-color: rgba(249, 115, 22, 0.3); }
+  .badge-github   { background: rgba(245, 101, 74, 0.12); color: #f5654a; border-color: rgba(245, 101, 74, 0.25); }
+  .badge-hackernews { background: rgba(251, 191, 36, 0.12); color: #fbbf24; border-color: rgba(251, 191, 36, 0.25); }
+  .badge-producthunt { background: rgba(224, 85, 64, 0.12); color: #f5654a; border-color: rgba(224, 85, 64, 0.25); }
+  .badge-huggingface { background: rgba(79, 200, 174, 0.12); color: #4fc8ae; border-color: rgba(79, 200, 174, 0.25); }
+  .badge-devto    { background: rgba(79, 200, 174, 0.12); color: #4fc8ae; border-color: rgba(79, 200, 174, 0.25); }
+  .badge-reddit   { background: rgba(245, 101, 74, 0.12); color: #f5654a; border-color: rgba(245, 101, 74, 0.25); }
 
   /* Pulse animation for live indicator */
   .pulse-live {

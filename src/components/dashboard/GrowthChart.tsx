@@ -26,20 +26,20 @@ export function GrowthChart({ data }: GrowthChartProps) {
         <AreaChart data={data} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+              <stop offset="5%" stopColor="#f5654a" stopOpacity={0.35} />
+              <stop offset="95%" stopColor="#f5654a" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
           <XAxis 
             dataKey="time" 
-            stroke="#64748b" 
+            stroke="#71717a" 
             fontSize={12}
             tickLine={false}
             axisLine={false}
           />
           <YAxis 
-            stroke="#64748b" 
+            stroke="#71717a" 
             fontSize={12}
             tickLine={false}
             axisLine={false}
@@ -47,17 +47,17 @@ export function GrowthChart({ data }: GrowthChartProps) {
           />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: '#0f1629', 
+              backgroundColor: '#121216', 
               borderColor: 'rgba(255,255,255,0.1)',
-              borderRadius: '8px',
-              color: '#f8fafc'
+              borderRadius: '10px',
+              color: '#ededed'
             }}
-            itemStyle={{ color: '#6366f1' }}
+            itemStyle={{ color: '#f5654a' }}
           />
           <Area
             type="monotone"
             dataKey="score"
-            stroke="#6366f1"
+            stroke="#f5654a"
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#colorScore)"
