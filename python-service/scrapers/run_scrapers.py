@@ -68,8 +68,17 @@ def run_all_scrapers():
     try:
         from normalize import normalize_all_pending_files
         normalize_all_pending_files()
+        
+        # Trigger the ML Pipeline via the Next.js API
+        import requests
+        print("\nTriggering ML Pipeline to generate embeddings and clusters...")
+        res = requests.post("http://localhost:3000/api/ml/trigger", json={"niche": "ai-tools"})
+        if res.status_code == 200:
+            print("ML Pipeline completed successfully!")
+        else:
+            print(f"ML Pipeline failed: {res.text}")
     except Exception as e:
-        print(f"Error running normalization: {e}")
+        print(f"Error running ingestion/ML: {e}")
 
 if __name__ == "__main__":
     # Run once immediately

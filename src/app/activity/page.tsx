@@ -141,28 +141,7 @@ export default function LiveActivityPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                {/* Pause/Play Stream Button */}
-                <button
-                  type="button"
-                  onClick={toggleStream}
-                  className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold border transition-all ${
-                    isStreaming
-                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
-                      : "bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/20"
-                  }`}
-                >
-                  {isStreaming ? (
-                    <>
-                      <Pause className="h-4 w-4" />
-                      <span>Streaming Live</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play className="h-4 w-4" />
-                      <span>Stream Paused</span>
-                    </>
-                  )}
-                </button>
+
 
                 {/* Search Bar */}
                 <div className="relative w-full md:w-64">
@@ -202,7 +181,7 @@ export default function LiveActivityPage() {
                         : "border-white/5 bg-white/5 text-slate-400 hover:text-slate-200"
                     }`}
                   >
-                    {meta.emoji} {meta.label}
+                    {meta.label}
                   </button>
                 );
               })}
@@ -223,7 +202,7 @@ export default function LiveActivityPage() {
                       transition={{ type: "spring", stiffness: 100, damping: 20 }}
                       className="h-full"
                       style={{ backgroundColor: item.color }}
-                      title={`${item.emoji} ${item.label}: ${item.percentage.toFixed(0)}%`}
+                      title={`${item.label}: ${item.percentage.toFixed(0)}%`}
                     />
                   ))}
                 </div>
@@ -285,21 +264,21 @@ export default function LiveActivityPage() {
                         href={post.url || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="glass group flex flex-col justify-between rounded-xl p-5 border bg-[#0e1324]/30 hover:border-indigo-500/30 hover:bg-white/5 transition-all duration-300"
+                        className="glass group flex flex-col justify-between rounded-xl p-8 border bg-[#0e1324]/30 hover:border-indigo-500/30 hover:bg-white/5 transition-all duration-300"
                         style={{ borderLeftWidth: "4px" }}
                       >
                         <div>
                           {/* Header details */}
                           <div className="flex items-center justify-between mb-3">
                             <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${meta?.badgeClass}`}>
-                              {meta?.emoji} {meta?.label}
+                              {meta?.label}
                             </span>
                             <span className="text-[10px] font-mono text-slate-500">{formattedDate}</span>
                           </div>
 
                           {/* Title */}
                           <div className="flex items-start justify-between gap-2 mb-2">
-                            <h3 className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors line-clamp-2">
+                            <h3 className="text-base font-bold text-white group-hover:text-indigo-400 transition-colors line-clamp-2">
                               {post.title || post.caption || "Untitled Scraped Post"}
                             </h3>
                             <ExternalLink className="h-3.5 w-3.5 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex-shrink-0" />
@@ -307,7 +286,7 @@ export default function LiveActivityPage() {
 
                           {/* Caption Preview */}
                           {post.caption && post.title && (
-                            <p className="text-xs text-slate-400 line-clamp-2 mb-3">
+                            <p className="text-sm text-slate-400 line-clamp-2 mb-3">
                               {post.caption}
                             </p>
                           )}

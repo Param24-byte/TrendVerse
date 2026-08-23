@@ -160,34 +160,44 @@ export async function POST(
        let inputs = [{}];
        if (platform === "github") {
          scraperId = process.env.BRIGHTDATA_GITHUB_SCRAPER_ID!;
-         inputs = [{ language: body.language || "all", since: body.since || "daily" }];
+         inputs = [{ url: "https://github.com/trending", language: body.language || "all", since: body.since || "daily" }];
        } else if (platform === "hackernews") {
          scraperId = process.env.BRIGHTDATA_HACKERNEWS_SCRAPER_ID!;
-         inputs = [{ pages: body.pages || 1 }];
+         inputs = [{ url: "https://news.ycombinator.com/", pages: body.pages || 1 }];
        } else if (platform === "producthunt") {
          scraperId = process.env.BRIGHTDATA_PRODUCTHUNT_SCRAPER_ID!;
+         inputs = [{ url: "https://www.producthunt.com/" }];
        } else if (platform === "huggingface") {
          scraperId = process.env.BRIGHTDATA_HUGGINGFACE_SCRAPER_ID!;
+         inputs = [{ url: "https://huggingface.co/models" }];
        } else {
          throw new Error("Unsupported platform");
        }
 
        if (!scraperId) throw new Error(`Missing scraper ID for ${platform}`);
 
-       const triggerRes = await fetch(`https://api.brightdata.com/dca/trigger?collector=${scraperId}`, {
+       const triggerRes = await fetch(`https://api.brightdata.com/dca/trigger?collector=${scraperId}&queue_next=1&format=json`, {
          method: "POST",
          headers: {
            "Authorization": `Bearer ${token}`,
            "Content-Type": "application/json",
          },
-         body: JSON.stringify({ queue_next: true, format: "json", inputs }),
+         body: JSON.stringify(inputs),
        });
 
-       if (!triggerRes.ok) throw new Error(`Failed to trigger scraper: ${triggerRes.statusText}`);
+       if (!triggerRes.ok) {
+         const errText = await triggerRes.text();
+         throw new Error(`Failed to trigger scraper: ${triggerRes.status} ${triggerRes.statusText} - ${errText}`);
+       }
        
        const triggerData = await triggerRes.json();
-       const resultsUrl = triggerData.results_url;
-       if (!resultsUrl) throw new Error("No results URL provided by Bright Data");
+       console.log("BrightData Trigger Response:", triggerData);
+       
+       let resultsUrl = triggerData.results_url || triggerData.url;
+       if (!resultsUrl && triggerData.collection_id) {
+         resultsUrl = `https://api.brightdata.com/dca/dataset?id=${triggerData.collection_id}`;
+       }
+       if (!resultsUrl) throw new Error(`No results URL provided by Bright Data. Response: ${JSON.stringify(triggerData)}`);
 
        const scrapedData = await pollBrightDataResults(resultsUrl, token);
        

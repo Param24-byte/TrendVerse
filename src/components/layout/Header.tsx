@@ -89,10 +89,6 @@ export function Header() {
       <div className="flex items-center gap-3">
         <Home className="h-5 w-5 text-white" />
         <span className="text-lg font-bold text-white tracking-tight">Dashboard</span>
-        <span className="text-sm text-slate-500 flex items-center gap-2 ml-3">
-          <span className="h-1.5 w-1.5 rounded-full bg-slate-500"></span>
-          Last synced 5 min ago
-        </span>
       </div>
 
       {/* Right side: Search and Profile */}
