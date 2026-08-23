@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { RunAllResult, ScraperRunResult } from "@/lib/types";
 import { createServerClient } from "@/lib/supabase/server";
 
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 const VALID_NICHES = ["ai-tools", "web-development", "devops-cloud", "open-source", "blockchain"];
 
