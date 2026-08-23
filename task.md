@@ -20,7 +20,7 @@
 ## Phase 4: Documentation (Ongoing)
 - `[ ]` **Create Proper README**: Write a comprehensive `README.md` for developers setting up the repository.
 - `[x]` **Project Crux Document**: Create an overarching markdown file detailing the "what, why, and how" of the project (`project_overview.md`).
-- `[ ]` **Self-Healing Script**: Create Python script for scraper self-healing (`heal.py`).
+- `[x]` ~~**Self-Healing Script**: Create Python script for scraper self-healing (`heal.py`).~~ _Removed — scraping logic now lives in TS ingest routes; Python scrapers directory deleted._
 
 ## Phase 5: Production Readiness & DevOps (Upcoming)
 - `[ ]` **Deployment (CI/CD)**: Set up Vercel for the Next.js frontend and a containerized cloud host (e.g. Render/Railway/AWS) for the FastAPI backend, along with GitHub Actions.

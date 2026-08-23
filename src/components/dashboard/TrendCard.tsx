@@ -47,7 +47,7 @@ export function TrendCard({ trend, index }: TrendCardProps) {
     <>
       <motion.div
         layoutId={layoutId}
-        className="group relative flex flex-col justify-between h-[380px] w-full rounded-2xl border border-white/10 bg-[#08080a] shadow-xl hover:shadow-[0_8px_32px_rgba(99,102,241,0.05)] transition-shadow overflow-hidden"
+        className="group relative flex flex-col justify-between h-[380px] w-full rounded-2xl border border-white/10 bg-[#08080a] shadow-lg hover:shadow-[0_8px_32px_rgba(99,102,241,0.05)] transition-shadow overflow-hidden"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         animate={isExpanded ? { rotateX: 0, rotateY: 0 } : { rotateX: tilt.x, rotateY: tilt.y }}

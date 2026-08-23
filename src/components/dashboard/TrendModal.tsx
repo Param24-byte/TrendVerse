@@ -129,7 +129,7 @@ export function TrendModal({ trend, index, layoutId, accentColor, onClose }: Tre
                 <button
                   type="button"
                   onClick={handleGenerateBrief}
-                  className="flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-500 transition-all shadow-md hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+                  className="flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-500 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
                 >
                   <Sparkles className="h-4 w-4" />
                   <span>Generate Full AI Brief</span>

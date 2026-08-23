@@ -113,7 +113,7 @@ export default function DashboardPage() {
 
               {/* Platform Share Donut Chart */}
               {!trendsLoading && !postsLoading && posts.length > 0 && (
-                <div className="h-[140px] w-full max-w-[350px] shrink-0 border border-white/5 bg-[#08080a]/60 rounded-2xl p-5 flex items-center justify-between gap-5 shadow-md">
+                <div className="h-[140px] w-full max-w-[350px] shrink-0 border border-white/5 bg-[#08080a]/60 rounded-2xl p-5 flex items-center justify-between gap-5 shadow-lg">
                   <div className="w-28 h-28 shrink-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>

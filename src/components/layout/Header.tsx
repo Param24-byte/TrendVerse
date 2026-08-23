@@ -221,7 +221,7 @@ export function Header() {
         ) : (
           <Link
             href="/login"
-            className="flex items-center justify-center rounded-xl bg-white/10 px-4 py-1.5 text-xs font-semibold text-white shadow-md hover:bg-white/20 transition-all"
+            className="flex items-center justify-center rounded-xl bg-white/10 px-4 py-1.5 text-xs font-semibold text-white shadow-lg hover:bg-white/20 transition-all"
           >
             Sign In
           </Link>
