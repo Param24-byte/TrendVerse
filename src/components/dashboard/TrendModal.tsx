@@ -80,8 +80,7 @@ export function TrendModal({ trend, index, layoutId, accentColor, onClose }: Tre
         </button>
 
         <div 
-          className="absolute top-0 left-0 right-0 h-1"
-          style={{ background: `linear-gradient(90deg, ${accentColor}, transparent)` }}
+          className="absolute top-0 left-0 right-0 h-1 bg-[#F5F5DC]"
         />
 
         <div className="p-8 flex-1 flex flex-col min-h-0">
@@ -96,7 +95,7 @@ export function TrendModal({ trend, index, layoutId, accentColor, onClose }: Tre
              </div>
              
              <div className="flex items-center gap-4 text-xs font-mono text-slate-400">
-                <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-full border border-emerald-500/20">
+                <div className="flex items-center gap-1.5 bg-[#4fc8ae]/10 text-[#4fc8ae] px-2.5 py-1 rounded-full border border-[#4fc8ae]/20">
                   <Activity className="w-3.5 h-3.5" />
                   Score: {trend.trend_score?.toFixed(1)}
                 </div>
@@ -105,7 +104,7 @@ export function TrendModal({ trend, index, layoutId, accentColor, onClose }: Tre
           </div>
 
           <div className="flex items-center gap-2 border-b border-white/5 pb-3 mb-6">
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-[#f5654a] flex items-center gap-1.5 font-mono">
               <Sparkles className="h-4 w-4" />
               AI Research Brief
             </h4>
@@ -114,8 +113,8 @@ export function TrendModal({ trend, index, layoutId, accentColor, onClose }: Tre
           <div className="flex-1 overflow-y-auto pr-4 text-sm text-slate-300 scrollbar-thin">
             {isLoading ? (
               <div className="flex h-full flex-col items-center justify-center gap-4">
-                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-                <span className="text-sm text-slate-500">Synthesizing comprehensive brief...</span>
+                <Loader2 className="h-8 w-8 animate-spin text-[#f5654a]" />
+                <span className="text-sm text-slate-400">Synthesizing comprehensive brief...</span>
               </div>
             ) : brief ? (
               <div className="prose prose-invert prose-p:mb-4 prose-headings:text-white prose-headings:font-bold max-w-none text-slate-300">
@@ -129,7 +128,7 @@ export function TrendModal({ trend, index, layoutId, accentColor, onClose }: Tre
                 <button
                   type="button"
                   onClick={handleGenerateBrief}
-                  className="flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-500 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+                  className="flex items-center gap-2 rounded-xl bg-[#f5654a] hover:bg-[#e05540] px-6 py-3 text-sm font-bold text-[#101012] transition-all shadow-lg hover:shadow-[0_0_24px_rgba(245,101,74,0.4)] cursor-pointer"
                 >
                   <Sparkles className="h-4 w-4" />
                   <span>Generate Full AI Brief</span>

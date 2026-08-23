@@ -98,9 +98,9 @@ export default function DashboardPage() {
             {/* Spotlight Hero Header Box */}
             <div 
               onMouseMove={handleMouseMove}
-              className="relative p-6 sm:p-8 rounded-2xl border border-white/5 bg-[#08080a]/40 overflow-hidden mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300"
+              className="relative p-6 sm:p-8 rounded-2xl border border-white/10 bg-[#0a0a0c] overflow-hidden mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 shadow-lg"
               style={{
-                background: `radial-gradient(circle 220px at ${coords.x}px ${coords.y}px, rgba(99, 102, 241, 0.08), transparent)`,
+                background: `radial-gradient(circle 240px at ${coords.x}px ${coords.y}px, rgba(245, 101, 74, 0.09), transparent)`,
               }}
             >
               <div className="flex-1">
@@ -120,10 +120,10 @@ export default function DashboardPage() {
                         key={niche.id}
                         onClick={() => setCurrentNiche(niche.id)}
                         className={cn(
-                          "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all",
+                          "flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all cursor-pointer",
                           isActive
-                            ? "bg-indigo-600 text-white"
-                            : "bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 hover:text-white"
+                            ? "bg-[#f5654a] text-[#101012] shadow-md shadow-[#f5654a]/25"
+                            : "bg-[#121216] text-slate-400 border border-white/10 hover:bg-white/10 hover:text-white"
                         )}
                       >
                         <Icon className="h-3.5 w-3.5" />

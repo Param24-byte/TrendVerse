@@ -96,7 +96,7 @@ export function Header() {
         
         {/* Search Bar matching the image format */}
         <div className="relative group flex items-center">
-          <div className="flex items-center h-9 w-64 rounded-lg bg-white/5 border border-white/10 px-3 transition-colors group-focus-within:border-white/20 group-focus-within:bg-white/10">
+          <div className="flex items-center h-9 w-64 rounded-lg bg-[#0c0c0e] border border-white/10 px-3 transition-colors group-focus-within:border-[#f5654a]/40 group-focus-within:bg-[#121216]">
             <Search className="h-4 w-4 text-slate-400 shrink-0" />
             <input
               id="search-field"
@@ -122,14 +122,14 @@ export function Header() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute top-12 right-0 w-full min-w-[320px] rounded-2xl border border-white/5 bg-[#08080a]/95 backdrop-blur-xl p-3 shadow-2xl z-50"
+                  className="absolute top-12 right-0 w-full min-w-[320px] rounded-2xl border border-white/10 bg-[#0d0d10]/95 backdrop-blur-xl p-3 shadow-2xl z-50"
                 >
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 px-3 mb-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#f5654a] font-mono px-3 mb-2">
                     Matching Trends
                   </p>
                   {searchLoading ? (
                     <div className="flex justify-center py-4">
-                      <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
+                      <Loader2 className="h-5 w-5 animate-spin text-[#f5654a]" />
                     </div>
                   ) : searchResults.length > 0 ? (
                     <motion.div 
@@ -155,13 +155,13 @@ export function Header() {
                           <Link
                             href="/"
                             onClick={() => setSearchQuery("")}
-                            className="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-all"
+                            className="flex items-center justify-between rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-[#f5654a] transition-all"
                           >
                             <div className="flex flex-col min-w-0 pr-4">
                               <span className="font-medium truncate text-slate-200">{result.cluster_label}</span>
                               <span className="text-[10px] text-slate-500 capitalize">{result.niche.replace("-", " ")}</span>
                             </div>
-                            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] font-bold text-[#4fc8ae] bg-[#4fc8ae]/10 border border-[#4fc8ae]/20 px-2 py-0.5 rounded-full font-mono">
                               Score {result.trend_score.toFixed(1)}
                             </span>
                           </Link>
@@ -190,7 +190,7 @@ export function Header() {
             {dropdownOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/5 bg-[#0e1324] p-2 shadow-2xl z-20 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/10 bg-[#0d0d10] p-2 shadow-2xl z-20 animate-in fade-in slide-in-from-top-2">
                   <div className="px-3 py-2 text-xs border-b border-white/5">
                     <p className="text-slate-500">Logged in as</p>
                     <p className="truncate font-semibold text-white mt-0.5">{user.email}</p>

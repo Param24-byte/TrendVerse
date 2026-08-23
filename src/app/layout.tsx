@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, EB_Garamond, Space_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
@@ -10,8 +10,15 @@ const inter = Inter({
   display: "swap",
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const ebGaramond = EB_Garamond({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const spaceMono = Space_Mono({
+  weight: ["400", "700"],
+  variable: "--font-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -33,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${outfit.variable} dark`}
+      className={`${inter.variable} ${ebGaramond.variable} ${spaceMono.variable} dark`}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-animated-gradient text-foreground antialiased relative overflow-x-hidden">

@@ -47,7 +47,7 @@ export function TrendCard({ trend, index }: TrendCardProps) {
     <>
       <motion.div
         layoutId={layoutId}
-        className="group relative flex flex-col justify-between h-[380px] w-full rounded-2xl border border-white/10 bg-[#08080a] shadow-lg hover:shadow-[0_8px_32px_rgba(99,102,241,0.05)] transition-shadow overflow-hidden"
+        className="group relative flex flex-col justify-between h-[380px] w-full rounded-2xl border border-white/10 bg-[#0a0a0c] shadow-lg hover:border-[#f5654a]/30 hover:shadow-[0_8px_32px_rgba(245,101,74,0.08)] transition-all duration-200 overflow-hidden"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         animate={isExpanded ? { rotateX: 0, rotateY: 0 } : { rotateX: tilt.x, rotateY: tilt.y }}
@@ -56,8 +56,7 @@ export function TrendCard({ trend, index }: TrendCardProps) {
         <div className="p-6 flex flex-col h-full relative z-10">
           {/* Top Edge Accent Bar */}
           <div 
-            className="absolute top-0 left-0 right-0 h-[3px]"
-            style={{ background: `linear-gradient(90deg, ${accentColor}, transparent)` }}
+            className="absolute top-0 left-0 right-0 h-[3px] bg-[#F5F5DC]"
           />
 
           {/* Header */}
@@ -89,10 +88,10 @@ export function TrendCard({ trend, index }: TrendCardProps) {
                   onClick={(e) => e.stopPropagation()}
                   className="group/link flex items-start gap-2"
                 >
-                  <h3 className="text-lg font-bold leading-tight text-white group-hover/link:text-indigo-400 transition-colors line-clamp-2">
+                  <h3 className="text-lg font-bold leading-tight text-white group-hover/link:text-[#f5654a] transition-colors line-clamp-2">
                     {trend.cluster_label}
                   </h3>
-                  <ExternalLink className="h-4 w-4 text-slate-500 opacity-0 group-hover/link:opacity-100 transition-opacity mt-1 flex-shrink-0" />
+                  <ExternalLink className="h-4 w-4 text-slate-500 opacity-0 group-hover/link:opacity-100 group-hover/link:text-[#f5654a] transition-opacity mt-1 flex-shrink-0" />
                 </a>
               ) : (
                 <h3 className="text-lg font-bold leading-tight text-white line-clamp-2">
@@ -111,16 +110,16 @@ export function TrendCard({ trend, index }: TrendCardProps) {
               <div className="flex gap-2">
                 <span>{trend.post_count} posts</span>
                 <span>•</span>
-                <span>{trend.engagement_velocity?.toFixed(0)}/hr</span>
+                <span className="text-[#4fc8ae] font-semibold">{trend.engagement_velocity?.toFixed(0)}/hr</span>
               </div>
             </div>
 
             {/* Click to read summary button */}
             <button
               onClick={() => setIsExpanded(true)}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-bold text-white hover:bg-white/10 hover:border-white/20 transition-all"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-bold text-white hover:bg-[#f5654a]/10 hover:border-[#f5654a]/30 hover:text-[#f5654a] transition-all cursor-pointer"
             >
-              <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+              <Sparkles className="h-3.5 w-3.5 text-[#f5654a]" />
               Click to read summary
             </button>
           </div>

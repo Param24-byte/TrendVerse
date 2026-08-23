@@ -14,7 +14,7 @@ export function PostFeed({ posts, title = "Latest Activity" }: PostFeedProps) {
 
   return (
     <div className="w-full">
-      <h2 className="mb-4 text-xl font-bold tracking-tight text-slate-300 font-heading">
+      <h2 className="mb-4 text-xl font-bold tracking-tight text-[#ededed] font-heading">
         {title}
       </h2>
       
@@ -30,57 +30,57 @@ export function PostFeed({ posts, title = "Latest Activity" }: PostFeedProps) {
               rel="noopener noreferrer"
               className="group block"
             >
-              <div className="h-full flex flex-col justify-between p-4 border border-white/5 bg-white/[0.01] hover:border-indigo-500/20 hover:bg-white/[0.03] transition-all duration-200 rounded-xl">
+              <div className="h-full flex flex-col justify-between p-4 border border-white/5 bg-[#0a0a0c] hover:border-[#f5654a]/30 hover:bg-[#121216]/60 transition-all duration-200 rounded-xl">
                 <div>
                   <div className="mb-2 flex items-start justify-between">
-                    <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase text-slate-400">
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#f5654a] font-mono">
                       <span>{meta?.emoji}</span>
                       <span>{meta?.label}</span>
                     </div>
-                    <ExternalLink className="h-3.5 w-3.5 text-slate-600 opacity-0 transition-opacity group-hover:opacity-100 group-hover:text-indigo-400" />
+                    <ExternalLink className="h-3.5 w-3.5 text-slate-500 opacity-0 transition-all group-hover:opacity-100 group-hover:text-[#f5654a]" />
                   </div>
                   
-                  <h4 className="mb-1 text-sm font-semibold text-slate-300 group-hover:text-indigo-300 transition-colors line-clamp-1">
+                  <h4 className="mb-1 text-sm font-semibold text-[#ededed] group-hover:text-[#f5654a] transition-colors line-clamp-1">
                     {post.title}
                   </h4>
                   
                   {post.caption && (
-                    <p className="line-clamp-2 text-xs text-slate-500">
+                    <p className="line-clamp-2 text-xs text-[#bcbcc4]">
                       {post.caption}
                     </p>
                   )}
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-white/5 pt-3 text-[10px] text-slate-500 font-mono">
+                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-white/5 pt-3 text-[10px] text-slate-400 font-mono">
                   {post.creator && (
-                    <span className="text-slate-400">@{post.creator}</span>
+                    <span className="text-[#4fc8ae] font-medium">@{post.creator}</span>
                   )}
                   
                   {post.engagement_breakdown?.stars_today !== undefined && (
                     <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 text-amber-500/80" />
-                      <span>{post.engagement_breakdown.stars_today.toLocaleString()} today</span>
+                      <Star className="h-3 w-3 text-[#fbbf24]" />
+                      <span className="text-slate-300">{post.engagement_breakdown.stars_today.toLocaleString()} today</span>
                     </div>
                   )}
                   
                   {post.engagement_breakdown?.forks !== undefined && (
                     <div className="flex items-center gap-1">
-                      <GitFork className="h-3 w-3" />
-                      <span>{post.engagement_breakdown.forks.toLocaleString()}</span>
+                      <GitFork className="h-3 w-3 text-slate-400" />
+                      <span className="text-slate-300">{post.engagement_breakdown.forks.toLocaleString()}</span>
                     </div>
                   )}
                   
                   {post.engagement_breakdown?.comments !== undefined && (
                     <div className="flex items-center gap-1">
-                      <MessageSquare className="h-3 w-3" />
-                      <span>{post.engagement_breakdown.comments.toLocaleString()}</span>
+                      <MessageSquare className="h-3 w-3 text-slate-400" />
+                      <span className="text-slate-300">{post.engagement_breakdown.comments.toLocaleString()}</span>
                     </div>
                   )}
 
                   {post.engagement_breakdown?.upvotes !== undefined && (
                     <div className="flex items-center gap-1">
-                      <ArrowUp className="h-3 w-3 text-rose-500/80" />
-                      <span>{post.engagement_breakdown.upvotes.toLocaleString()}</span>
+                      <ArrowUp className="h-3 w-3 text-[#f5654a]" />
+                      <span className="text-slate-300">{post.engagement_breakdown.upvotes.toLocaleString()}</span>
                     </div>
                   )}
                 </div>

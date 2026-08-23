@@ -151,20 +151,20 @@ export default function LiveActivityPage() {
                     placeholder="Search feed..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-xl border border-white/5 bg-[#08080a] py-2.5 pl-9 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-xl border border-white/10 bg-[#0c0c0e] py-2.5 pl-9 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-[#f5654a] focus:outline-none focus:ring-1 focus:ring-[#f5654a]/40 transition-all"
                   />
                 </div>
               </div>
             </div>
 
             {/* Platform filter chips */}
-            <div className="flex flex-wrap gap-2 mb-6 border-b border-white/5 pb-4">
+            <div className="flex flex-wrap gap-2.5 mb-6 border-b border-white/5 pb-4">
               <button
                 onClick={() => setSelectedPlatform("all")}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold border transition-all ${
+                className={`rounded-xl px-4 py-2 text-sm font-semibold border transition-all cursor-pointer ${
                   selectedPlatform === "all"
-                    ? "bg-indigo-600 border-indigo-500 text-white shadow-sm"
-                    : "border-white/5 bg-white/5 text-slate-400 hover:text-slate-200"
+                    ? "bg-[#f5654a] border-[#f5654a] text-[#101012] shadow-sm"
+                    : "border-white/10 bg-[#121216] text-slate-400 hover:text-white hover:border-white/20"
                 }`}
               >
                 All Platforms
@@ -175,10 +175,10 @@ export default function LiveActivityPage() {
                   <button
                     key={plat}
                     onClick={() => setSelectedPlatform(plat)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold border transition-all ${
+                    className={`rounded-xl px-4 py-2 text-sm font-semibold border transition-all cursor-pointer ${
                       selectedPlatform === plat
-                        ? "bg-indigo-600 border-indigo-500 text-white shadow-sm"
-                        : "border-white/5 bg-white/5 text-slate-400 hover:text-slate-200"
+                        ? "bg-[#f5654a] border-[#f5654a] text-[#101012] shadow-sm"
+                        : "border-white/10 bg-[#121216] text-slate-400 hover:text-white hover:border-white/20"
                     }`}
                   >
                     {meta.label}
@@ -190,9 +190,9 @@ export default function LiveActivityPage() {
             {/* Dynamic stacked breakdown bar */}
             {posts.length > 0 && (
               <div className="mb-8 rounded-2xl border border-white/5 bg-[#08080a]/60 p-4">
-                <div className="flex justify-between items-center text-xs text-slate-500 mb-2">
-                  <span className="font-semibold uppercase tracking-wider text-[10px]">Platform Share Breakdown</span>
-                  <span>{posts.length} total active posts</span>
+                <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
+                  <span className="font-semibold uppercase tracking-wider text-xs font-mono">Platform Share Breakdown</span>
+                  <span className="font-mono">{posts.length} total active posts</span>
                 </div>
                 <div className="flex h-3 w-full rounded-full bg-white/5 overflow-hidden">
                   {platformBreakdown.map((item) => (
@@ -211,14 +211,14 @@ export default function LiveActivityPage() {
 
             {loading ? (
               <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-2xl border border-white/5 bg-[#08080a]/40">
-                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-                <p className="text-sm font-medium text-slate-400">Loading incoming stream...</p>
+                <Loader2 className="h-8 w-8 animate-spin text-[#f5654a]" />
+                <p className="text-base font-medium text-slate-400">Loading incoming stream...</p>
               </div>
             ) : filteredPosts.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#08080a]/40 py-24 text-center">
                 <Zap className="h-10 w-10 text-slate-600 mb-4 animate-pulse" />
-                <p className="text-lg font-medium text-slate-300">No posts in feed</p>
-                <p className="mt-2 text-sm text-slate-500">
+                <p className="text-xl font-medium text-slate-300">No posts in feed</p>
+                <p className="mt-2 text-sm text-slate-400">
                   Try triggering a manual scrape in Settings or select a different filter.
                 </p>
               </div>
@@ -250,7 +250,7 @@ export default function LiveActivityPage() {
                           y: 0,
                           borderColor: [
                             "rgba(255, 255, 255, 0.05)",
-                            meta?.color || "rgba(99, 102, 241, 0.8)",
+                            meta?.color || "rgba(245, 101, 74, 0.8)",
                             "rgba(255, 255, 255, 0.05)"
                           ]
                         }}
@@ -264,65 +264,59 @@ export default function LiveActivityPage() {
                         href={post.url || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="glass group flex flex-col justify-between rounded-xl p-8 border bg-[#08080a] hover:border-indigo-500/30 hover:bg-white/5 transition-all duration-300"
+                        className="glass group flex flex-col justify-between rounded-xl p-7 border bg-[#0a0a0c] hover:border-[#f5654a]/30 hover:bg-[#121216]/70 transition-all duration-300"
                         style={{ borderLeftWidth: "4px" }}
                       >
                         <div>
                           {/* Header details */}
                           <div className="flex items-center justify-between mb-3">
-                            <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded ${meta?.badgeClass}`}>
+                            <span className={`text-xs font-semibold uppercase px-2.5 py-1 rounded font-mono ${meta?.badgeClass}`}>
                               {meta?.label}
                             </span>
-                            <span className="text-[10px] font-mono text-slate-500">{formattedDate}</span>
+                            <span className="text-xs font-mono text-slate-400">{formattedDate}</span>
                           </div>
 
                           {/* Title */}
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <h3 className="text-base font-bold text-white group-hover:text-indigo-400 transition-colors line-clamp-2">
+                          <div className="flex items-start justify-between gap-2 mb-2.5">
+                            <h3 className="text-lg font-bold text-white group-hover:text-[#f5654a] transition-colors line-clamp-2 leading-snug">
                               {post.title || post.caption || "Untitled Scraped Post"}
                             </h3>
-                            <ExternalLink className="h-3.5 w-3.5 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity mt-0.5 flex-shrink-0" />
+                            <ExternalLink className="h-4 w-4 text-slate-500 opacity-0 group-hover:opacity-100 group-hover:text-[#f5654a] transition-opacity mt-1 flex-shrink-0" />
                           </div>
 
                           {/* Caption Preview */}
                           {post.caption && post.title && (
-                            <p className="text-sm text-slate-400 line-clamp-2 mb-3">
+                            <p className="text-sm sm:text-[15px] text-slate-300 line-clamp-2 mb-3.5 leading-relaxed">
                               {post.caption}
                             </p>
                           )}
 
                           {/* Creator info */}
                           {post.creator && (
-                            <span className="text-[10px] font-mono text-slate-500">
-                              By: <span className="text-slate-400">{post.creator}</span>
+                            <span className="text-xs font-mono text-slate-400">
+                              By: <span className="text-slate-300 font-medium">{post.creator}</span>
                             </span>
                           )}
                         </div>
 
                         {/* Engagement stats */}
-                        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-white/5 text-[10px] font-mono text-slate-400">
-                          {post.velocity_score !== undefined && post.velocity_score !== null && (
-                            <div className="flex items-center gap-1 text-emerald-400">
-                              <Zap className="h-3 w-3" />
-                              <span>Score: {post.velocity_score.toFixed(1)}</span>
-                            </div>
-                          )}
+                        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-white/5 text-xs font-mono text-slate-400">
                           {post.engagement_count !== undefined && post.engagement_count !== null && (
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3 w-3 text-amber-400" />
-                              <span>{post.engagement_count.toLocaleString()}</span>
+                            <div className="flex items-center gap-1.5">
+                              <Star className="h-3.5 w-3.5 text-amber-400" />
+                              <span className="text-slate-300 font-medium">{post.engagement_count.toLocaleString()}</span>
                             </div>
                           )}
                           {post.engagement_breakdown?.forks !== undefined && (
-                            <div className="flex items-center gap-1">
-                              <GitFork className="h-3 w-3" />
-                              <span>Forks: {post.engagement_breakdown.forks}</span>
+                            <div className="flex items-center gap-1.5">
+                              <GitFork className="h-3.5 w-3.5" />
+                              <span className="text-slate-300">Forks: {post.engagement_breakdown.forks}</span>
                             </div>
                           )}
                           {post.engagement_breakdown?.comments !== undefined && (
-                            <div className="flex items-center gap-1">
-                              <MessageSquare className="h-3 w-3" />
-                              <span>Comments: {post.engagement_breakdown.comments}</span>
+                            <div className="flex items-center gap-1.5">
+                              <MessageSquare className="h-3.5 w-3.5" />
+                              <span className="text-slate-300">Comments: {post.engagement_breakdown.comments}</span>
                             </div>
                           )}
                         </div>
