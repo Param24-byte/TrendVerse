@@ -3,11 +3,11 @@ import { createServerClient } from "@/lib/supabase/server";
 import { Platform } from "@/lib/types";
 import crypto from "crypto";
 
-export const maxDuration = 600;
+export const maxDuration = 300;
 
 // Helper to wait and poll Bright Data for results
 async function pollBrightDataResults(url: string, token: string): Promise<any[]> {
-  const maxRetries = 120; // 120 * 5s = 600 seconds max wait
+  const maxRetries = 60; // 60 * 5s = 300 seconds max wait
   
   for (let i = 0; i < maxRetries; i++) {
     await new Promise(resolve => setTimeout(resolve, 5000));
