@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: trendverse-ml-backend
+    env: docker
+    dockerContext: python-service
+    dockerfilePath: python-service/Dockerfile
+    plan: free
+    region: ohio
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: INTERNAL_API_SECRET
+        sync: false

@@ -1,6 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 import os
 
 try:
@@ -13,11 +16,15 @@ except ImportError:
 from models import HealthResponse
 from routers import embed, cluster, trends
 
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(
     title="TrendVerse ML Service",
     description="Embedding, clustering, and trend scoring for TrendVerse",
     version="1.0.0",
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
 # Read allowed origins from env; fallback to localhost for dev
@@ -60,7 +67,8 @@ app.include_router(trends.router, dependencies=[Depends(verify_token)])
 
 # ── Health Check ──────────────────────────────────────────────────────────────
 @app.get("/health", response_model=HealthResponse, tags=["health"])
-async def health():
+@limiter.limit("60/minute")
+async def health(request: Request):
     return HealthResponse(
         status="ok",
         model="sentence-transformers/all-MiniLM-L6-v2",
