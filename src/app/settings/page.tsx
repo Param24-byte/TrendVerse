@@ -103,7 +103,7 @@ export default function SettingsPage() {
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
 
-      <div className="flex flex-col flex-1 pl-64 h-full relative">
+      <div className="flex flex-col flex-1 pl-16 h-full relative">
         <Header />
 
         <main className="flex-1 overflow-y-auto bg-transparent p-8">

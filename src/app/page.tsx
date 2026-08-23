@@ -87,7 +87,7 @@ export default function DashboardPage() {
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
       
-      <div className="flex flex-col flex-1 pl-64 h-full relative">
+      <div className="flex flex-col flex-1 pl-16 h-full relative">
         <Header />
         
         <main className="flex-1 overflow-y-auto bg-transparent p-8">
@@ -112,14 +112,14 @@ export default function DashboardPage() {
 
               {/* Platform Share Donut Chart */}
               {!trendsLoading && !postsLoading && posts.length > 0 && (
-                <div className="h-[110px] w-full max-w-[290px] shrink-0 border border-white/5 bg-[#08080a]/60 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-md">
-                  <div className="w-20 h-20 shrink-0">
+                <div className="h-[140px] w-full max-w-[350px] shrink-0 border border-white/5 bg-[#08080a]/60 rounded-2xl p-5 flex items-center justify-between gap-5 shadow-md">
+                  <div className="w-28 h-28 shrink-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={donutData}
-                          innerRadius={24}
-                          outerRadius={34}
+                          innerRadius={36}
+                          outerRadius={50}
                           paddingAngle={3}
                           dataKey="value"
                         >
@@ -128,18 +128,18 @@ export default function DashboardPage() {
                           ))}
                         </Pie>
                         <Tooltip 
-                          contentStyle={{ background: "#08080a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", fontSize: "10px" }}
+                          contentStyle={{ background: "#08080a", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", fontSize: "12px" }}
                           itemStyle={{ color: "#fff" }}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="flex-1 flex flex-col justify-center text-[10px] space-y-1 overflow-hidden pr-1">
-                    <p className="font-semibold text-slate-500 uppercase tracking-wider mb-1">Platform Share</p>
+                  <div className="flex-1 flex flex-col justify-center text-xs space-y-1.5 overflow-hidden pr-1">
+                    <p className="font-semibold text-slate-500 uppercase tracking-wider mb-2 text-[11px]">Platform Share</p>
                     {donutData.slice(0, 3).map((d) => (
                       <div key={d.name} className="flex items-center justify-between text-slate-300">
                         <span className="truncate pr-2">{d.name}</span>
-                        <span className="font-mono font-bold text-slate-400">{((d.value / posts.length) * 100).toFixed(0)}%</span>
+                        <span className="font-mono font-bold text-slate-400 text-sm">{((d.value / posts.length) * 100).toFixed(0)}%</span>
                       </div>
                     ))}
                   </div>
