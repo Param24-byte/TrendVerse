@@ -5,7 +5,7 @@ import crypto from "crypto";
 
 // Helper to wait and poll Bright Data for results
 async function pollBrightDataResults(url: string, token: string): Promise<any[]> {
-  const maxRetries = 30; // 30 * 5s = 150 seconds max wait
+  const maxRetries = 120; // 120 * 5s = 600 seconds max wait
   
   for (let i = 0; i < maxRetries; i++) {
     await new Promise(resolve => setTimeout(resolve, 5000));

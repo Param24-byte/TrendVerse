@@ -12,22 +12,22 @@ async function executePipeline(niche: string) {
 
   const supabase = createServerClient();
 
-  // 2. Cooldown Rate Limiting (Reject if run within last 15 minutes)
-  const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
-  const { data: recentSources } = await supabase
-    .from("sources")
-    .select("last_scraped_at")
-    .eq("niche", niche)
-    .gt("last_scraped_at", fifteenMinutesAgo);
+  // 2. Cooldown Rate Limiting (Temporarily disabled for testing)
+  // const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  // const { data: recentSources } = await supabase
+  //   .from("sources")
+  //   .select("last_scraped_at")
+  //   .eq("niche", niche)
+  //   .gt("last_scraped_at", fifteenMinutesAgo);
 
-  if (recentSources && recentSources.length > 0) {
-    const lastRun = new Date(Math.max(...recentSources.map(s => new Date(s.last_scraped_at!).getTime())));
-    const waitMinutes = Math.ceil((lastRun.getTime() + 15 * 60 * 1000 - Date.now()) / (60 * 1000));
-    return NextResponse.json(
-      { error: `Pipeline recently executed. Please wait ${waitMinutes} minute(s) before running again.` },
-      { status: 429 }
-    );
-  }
+  // if (recentSources && recentSources.length > 0) {
+  //   const lastRun = new Date(Math.max(...recentSources.map(s => new Date(s.last_scraped_at!).getTime())));
+  //   const waitMinutes = Math.ceil((lastRun.getTime() + 15 * 60 * 1000 - Date.now()) / (60 * 1000));
+  //   return NextResponse.json(
+  //     { error: `Pipeline recently executed. Please wait ${waitMinutes} minute(s) before running again.` },
+  //     { status: 429 }
+  //   );
+  // }
 
   // Determine inputs based on niche
   let githubInputs = { language: "all", since: "daily" };
