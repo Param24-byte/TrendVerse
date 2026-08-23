@@ -108,20 +108,24 @@ Row Level Security (RLS) policies govern access, allowing anonymous users to rea
 TrendVerse is deployed across specialized cloud providers to optimize for frontend edge delivery and backend compute performance.
 
 ```mermaid
-architecture-beta
-    group frontend(logos:vercel)[Vercel]
-    group backend(logos:render)[Render]
-    group database(logos:supabase)[Supabase]
+flowchart TD
+    subgraph Frontend ["Vercel"]
+        cron[Vercel Cron]
+        nextjs[Next.js Application]
+    end
 
-    service nextjs(logos:nextjs)[Next.js Application] in frontend
-    service cron(logos:vercel)[Vercel Cron] in frontend
-    service python(logos:python)[Python FastAPI] in backend
-    service pg(logos:postgresql)[PostgreSQL + pgvector] in database
+    subgraph Backend ["Render"]
+        python[Python FastAPI]
+    end
 
-    cron --R--> nextjs
-    nextjs --R--> python
-    nextjs --R--> pg
-    python --R--> pg
+    subgraph Database ["Supabase"]
+        pg[(PostgreSQL + pgvector)]
+    end
+
+    cron -->|Triggers every 30m| nextjs
+    nextjs -->|API Calls| python
+    nextjs -->|Reads/Writes| pg
+    python -->|Reads/Writes| pg
 ```
 
 1. **Vercel (Frontend & Serverless Functions)**:
