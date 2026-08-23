@@ -25,7 +25,7 @@ export function PostFeed({ posts, title = "Latest Activity" }: PostFeedProps) {
           return (
             <a 
               key={post.id}
-              href={post.url}
+              href={post.url || undefined}
               target="_blank"
               rel="noopener noreferrer"
               className="group block"
