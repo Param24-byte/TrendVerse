@@ -2,16 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NICHES } from "@/lib/types";
 import { BarChart3, Settings, BookOpen, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-interface SidebarProps {
-  currentNiche: string;
-}
-
-export function Sidebar({ currentNiche }: SidebarProps) {
+export function Sidebar() {
   const pathname = usePathname();
 
   const navItems = [
@@ -70,26 +65,6 @@ export function Sidebar({ currentNiche }: SidebarProps) {
         })}
       </nav>
 
-      {/* Active Niche Indicator */}
-      <div className="p-4 mt-auto border-t border-white/5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 px-2">
-          Active Niche
-        </p>
-        {NICHES.map((niche) => {
-          if (niche.id !== currentNiche) return null;
-          return (
-            <div
-              key={niche.id}
-              className="flex items-center gap-3 rounded-lg bg-indigo-500/5 px-3 py-2.5 border border-indigo-500/20"
-            >
-              <span className="text-xl">{niche.icon}</span>
-              <span className="text-sm font-medium text-slate-200">
-                {niche.label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
     </aside>
   );
 }

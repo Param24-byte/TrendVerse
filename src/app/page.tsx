@@ -85,13 +85,10 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar currentNiche={currentNiche} />
+      <Sidebar />
       
       <div className="flex flex-col flex-1 pl-64 h-full relative">
-        <Header 
-          currentNiche={currentNiche} 
-          onNicheChange={setCurrentNiche} 
-        />
+        <Header />
         
         <main className="flex-1 overflow-y-auto bg-transparent p-8">
           <div className="mx-auto max-w-7xl">

@@ -2,20 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Search, User, LogOut, Settings as SettingsIcon, Loader2 } from "lucide-react";
+import { Search, User, LogOut, Settings as SettingsIcon, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { NicheSelector } from "@/components/NicheSelector";
-import { LiveIndicator } from "@/components/LiveIndicator";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
-interface HeaderProps {
-  currentNiche: string;
-  onNicheChange: (nicheId: string) => void;
-}
-
-export function Header({ currentNiche, onNicheChange }: HeaderProps) {
+export function Header() {
   const [user, setUser] = useState<any>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -165,23 +158,7 @@ export function Header({ currentNiche, onNicheChange }: HeaderProps) {
           </AnimatePresence>
         </div>
         <div className="flex items-center gap-x-4 lg:gap-x-6">
-          {/* Niche Selector */}
-          <NicheSelector 
-            currentNiche={currentNiche} 
-            onNicheChange={onNicheChange} 
-          />
 
-          {/* Live Indicator */}
-          <LiveIndicator />
-
-          {/* Separator */}
-          <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-white/10" aria-hidden="true" />
-
-          {/* Notification Button */}
-          <button type="button" className="-m-2.5 p-2.5 text-slate-400 hover:text-slate-300">
-            <span className="sr-only">View notifications</span>
-            <Bell className="h-5 w-5" aria-hidden="true" />
-          </button>
 
           {/* Profile / Dropdown */}
           {user ? (
