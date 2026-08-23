@@ -116,14 +116,26 @@ async def cluster_posts(req: ClusterRequest):
         # Try to find a real title — first from the representative post,
         # then scan all cluster posts for one with a non-placeholder title
         UNTITLED_MARKERS = {"untitled", "untitled trend", "untitled scraped post", ""}
+        
+        def is_good_title(t):
+            t = t.strip().lower()
+            return t not in UNTITLED_MARKERS and len(t.split()) >= 3
+
         rep_title = rep_post.get("title") or rep_post.get("caption") or ""
-        if rep_title.strip().lower() in UNTITLED_MARKERS:
+        if not is_good_title(rep_title):
             # Scan other posts in the cluster for a real title
             for p in sorted(cluster_posts, key=lambda x: x.get("engagement_count", 0) or 0, reverse=True):
                 candidate = p.get("title") or p.get("caption") or ""
-                if candidate.strip().lower() not in UNTITLED_MARKERS:
+                if is_good_title(candidate):
                     rep_title = candidate
                     break
+            # Fallback if no good title > 3 words is found
+            if not is_good_title(rep_title):
+                for p in cluster_posts:
+                    candidate = p.get("title") or p.get("caption") or ""
+                    if candidate.strip().lower() not in UNTITLED_MARKERS:
+                        rep_title = candidate
+                        break
 
         # Safety net: skip clusters that still have no usable title
         if rep_title.strip().lower() in UNTITLED_MARKERS:

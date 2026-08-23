@@ -6,6 +6,7 @@ import { Post } from "@/lib/types";
 
 export function usePosts(niche: string) {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [platformCounts, setPlatformCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
@@ -14,18 +15,35 @@ export function usePosts(niche: string) {
 
     async function fetchPosts() {
       setLoading(true);
+      
+      // Fetch top posts for the feed
       const { data, error } = await supabase
         .from("posts")
         .select("*")
         .eq("niche", niche)
         .order("velocity_score", { ascending: false })
-        .limit(20);
+        .limit(300);
 
       if (error) {
         console.error("Error fetching posts:", error);
       } else if (mounted) {
         setPosts(data || []);
       }
+      
+      // Fetch lightweight platform stats for the entire dataset
+      const { data: statsData } = await supabase
+        .from("posts")
+        .select("platform")
+        .eq("niche", niche);
+        
+      if (mounted && statsData) {
+        const counts = statsData.reduce((acc: Record<string, number>, curr) => {
+          acc[curr.platform] = (acc[curr.platform] || 0) + 1;
+          return acc;
+        }, {});
+        setPlatformCounts(counts);
+      }
+      
       if (mounted) setLoading(false);
     }
 
@@ -44,8 +62,6 @@ export function usePosts(niche: string) {
         },
         (payload) => {
           console.log("Real-time post insert:", payload);
-          // Prepend the new post for an instant UI update, 
-          // or just refetch to ensure correct velocity_score sorting
           fetchPosts();
         }
       )
@@ -57,5 +73,5 @@ export function usePosts(niche: string) {
     };
   }, [niche, supabase]);
 
-  return { posts, loading };
+  return { posts, platformCounts, loading };
 }

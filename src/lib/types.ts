@@ -87,13 +87,13 @@ export const PLATFORM_META: Record<
   Platform,
   { label: string; color: string; badgeClass: string; emoji: string }
 > = {
-  github:       { label: "GitHub",       color: "#8b5cf6", badgeClass: "badge-github",      emoji: "🐙" },
-  hackernews:   { label: "Hacker News",  color: "#f59e0b", badgeClass: "badge-hackernews",  emoji: "🔶" },
-  producthunt:  { label: "Product Hunt", color: "#f43f5e", badgeClass: "badge-producthunt", emoji: "🚀" },
-  huggingface:  { label: "Hugging Face", color: "#22d3ee", badgeClass: "badge-huggingface", emoji: "🤗" },
-  devto:        { label: "Dev.to",       color: "#6366f1", badgeClass: "badge-devto",       emoji: "📝" },
-  reddit:       { label: "Reddit",       color: "#f97316", badgeClass: "badge-reddit",       emoji: "👾" },
-  stackexchange:{ label: "Stack Exchange", color: "#f59e0b", badgeClass: "badge-hackernews", emoji: "📚" },
+  github:       { label: "GitHub",       color: "#8b5cf6", badgeClass: "badge-github",      emoji: "" },
+  hackernews:   { label: "Hacker News",  color: "#f59e0b", badgeClass: "badge-hackernews",  emoji: "" },
+  producthunt:  { label: "Product Hunt", color: "#f43f5e", badgeClass: "badge-producthunt", emoji: "" },
+  huggingface:  { label: "Hugging Face", color: "#22d3ee", badgeClass: "badge-huggingface", emoji: "" },
+  devto:        { label: "Dev.to",       color: "#6366f1", badgeClass: "badge-devto",       emoji: "" },
+  reddit:       { label: "Reddit",       color: "#f97316", badgeClass: "badge-reddit",       emoji: "" },
+  stackexchange:{ label: "Stack Exchange", color: "#f59e0b", badgeClass: "badge-hackernews", emoji: "" },
 };
 
 // ─── API response types ───────────────────────────────────────────────────────

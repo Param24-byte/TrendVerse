@@ -27,18 +27,7 @@ export function TrendCard({ trend, index }: TrendCardProps) {
     setMounted(true);
   }, []);
 
-  // 1. Score count-up animation
-  const [displayScore, setDisplayScore] = useState(0);
-  useEffect(() => {
-    const controls = animate(0, trend.trend_score || 0, {
-      duration: 0.8,
-      ease: "easeOut",
-      onUpdate: (value) => setDisplayScore(Math.round(value * 10) / 10),
-    });
-    return () => controls.stop();
-  }, [trend.trend_score]);
-
-  // 2. Word-by-word streaming typing effect for AI briefs
+  // 1. Word-by-word streaming typing effect for AI briefs
   const [streamedText, setStreamedText] = useState("");
   useEffect(() => {
     if (!brief) {
@@ -77,21 +66,7 @@ export function TrendCard({ trend, index }: TrendCardProps) {
     setTilt({ x: 0, y: 0 });
   };
 
-  // 4. Generate consistent sparkline shape based on trend.id hash
-  const sparklineData = Array.from({ length: 6 }, (_, i) => {
-    const charCode = trend.id.charCodeAt(i % trend.id.length) || 10;
-    return { value: (charCode % 40) + i * 3 };
-  });
-  const sparklinePoints = sparklineData.map((d, i) => `${i * 12},${35 - (d.value / 60) * 25}`).join(" ");
-
   const sourceUrl = trend.trend_posts?.find(tp => tp.posts?.url)?.posts?.url;
-
-  // 5. Circular score gauge params
-  const scorePercent = Math.min((trend.trend_score || 0) * 10, 100);
-  const radius = 18;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (scorePercent / 100) * circumference;
-
   const firstPlatform = trend.platforms?.[0];
   const accentColor = PLATFORM_META[firstPlatform as Platform]?.color || "#818cf8";
 
@@ -229,43 +204,14 @@ export function TrendCard({ trend, index }: TrendCardProps) {
                   #{index + 1}
                 </span>
 
-                {/* Score Radial Gauge */}
-                <div className="relative flex h-12 w-12 items-center justify-center shrink-0" title={`Velocity Score: ${trend.trend_score?.toFixed(1)}`}>
-                  <svg className="w-12 h-12 transform -rotate-90">
-                    <circle cx="24" cy="24" r={radius} className="stroke-white/5" strokeWidth="2.5" fill="transparent" />
-                    <motion.circle 
-                      cx="24" 
-                      cy="24" 
-                      r={radius} 
-                      className="stroke-emerald-400" 
-                      strokeWidth="3" 
-                      fill="transparent" 
-                      strokeDasharray={circumference}
-                      initial={{ strokeDashoffset: circumference }}
-                      animate={{ strokeDashoffset }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                    />
-                  </svg>
-                  <span className="absolute text-[10px] font-extrabold text-emerald-400 tabular-nums">
-                    {displayScore.toFixed(0)}
-                  </span>
+                {/* Platform Badges */}
+                <div className="flex flex-wrap gap-1.5">
+                  {trend.platforms?.map((plat) => (
+                    <span key={plat} className="text-xs font-semibold px-2 py-1 rounded-md bg-white/5 border border-white/10 text-slate-300">
+                      {PLATFORM_META[plat as Platform]?.label || plat}
+                    </span>
+                  ))}
                 </div>
-              </div>
-
-              {/* Sparkline Drawing Animation */}
-              <div className="flex items-center h-8 pr-1" title="Hourly Ingestion Rate">
-                <svg className="w-16 h-8 overflow-visible" viewBox="0 0 60 40">
-                  <motion.polyline
-                    fill="none"
-                    stroke="#10b981"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    points={sparklinePoints}
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 1.2, ease: "easeInOut" }}
-                  />
-                </svg>
               </div>
             </div>
 
@@ -302,13 +248,6 @@ export function TrendCard({ trend, index }: TrendCardProps) {
                 <span>{trend.post_count} posts</span>
                 <span>•</span>
                 <span>{trend.engagement_velocity?.toFixed(0)}/hr</span>
-              </div>
-              <div className="flex gap-1.5">
-                {trend.platforms?.map((plat) => (
-                  <span key={plat} title={PLATFORM_META[plat as Platform]?.label}>
-                    {PLATFORM_META[plat as Platform]?.emoji}
-                  </span>
-                ))}
               </div>
             </div>
 

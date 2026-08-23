@@ -67,8 +67,19 @@ def process_file(file_path):
         
     records_to_insert = []
     for item in data:
+        # Map short platform codes to expected full names
+        full_platform = platform
+        if platform == "hn": full_platform = "hackernews"
+        elif platform == "ph": full_platform = "producthunt"
+        elif platform == "hf": full_platform = "huggingface"
+        
         # We pass 'ai-tools' as a default niche for now since our run_scrapers.py searches for AI
-        mapped = map_bright_data_to_supabase(platform, item, niche="ai-tools")
+        mapped = map_bright_data_to_supabase(full_platform, item, niche="ai-tools")
+        
+        # Calculate velocity score if missing
+        if mapped["velocity_score"] == 0.0 and mapped["engagement_count"] > 0:
+            mapped["velocity_score"] = mapped["engagement_count"] / 2.0
+            
         records_to_insert.append(mapped)
         
     if records_to_insert:

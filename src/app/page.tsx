@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
   // Fetch real-time data from Supabase
   const { trends, loading: trendsLoading } = useTrends(currentNiche);
-  const { posts, loading: postsLoading } = usePosts(currentNiche);
+  const { posts, platformCounts, loading: postsLoading } = usePosts(currentNiche);
 
   // Spotlight coordinates state
   const [coords, setCoords] = useState({ x: 0, y: 0 });
@@ -29,15 +29,16 @@ export default function DashboardPage() {
     });
   };
 
-  // Extract platform breakdown for donut
-  const totalPosts = posts.length || 1;
+  // Extract platform breakdown for donut using true DB counts
+  const totalPosts = Object.values(platformCounts).reduce((a, b) => a + b, 0) || 1;
   const donutData = Object.keys(PLATFORM_META)
     .map((plat) => {
-      const count = posts.filter((p) => p.platform === plat).length;
+      const count = platformCounts[plat] || 0;
       const meta = PLATFORM_META[plat as Platform];
       return { name: meta.label, value: count, color: meta.color };
     })
-    .filter((d) => d.value > 0);
+    .filter((d) => d.value > 0)
+    .sort((a, b) => b.value - a.value);
 
   // Shimmer skeleton loading grid
   const SkeletonGrid = () => (
@@ -139,7 +140,7 @@ export default function DashboardPage() {
                     {donutData.slice(0, 3).map((d) => (
                       <div key={d.name} className="flex items-center justify-between text-slate-300">
                         <span className="truncate pr-2">{d.name}</span>
-                        <span className="font-mono font-bold text-slate-400 text-sm">{((d.value / posts.length) * 100).toFixed(0)}%</span>
+                        <span className="font-mono font-bold text-slate-400 text-sm">{((d.value / totalPosts) * 100).toFixed(0)}%</span>
                       </div>
                     ))}
                   </div>
