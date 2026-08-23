@@ -3,6 +3,8 @@ import { createServerClient } from "@/lib/supabase/server";
 import { Platform } from "@/lib/types";
 import crypto from "crypto";
 
+export const maxDuration = 600;
+
 // Helper to wait and poll Bright Data for results
 async function pollBrightDataResults(url: string, token: string): Promise<any[]> {
   const maxRetries = 120; // 120 * 5s = 600 seconds max wait
@@ -28,6 +30,12 @@ export async function POST(
     const { platform } = await params;
     const body = await request.json().catch(() => ({}));
     const niche = body.niche || "ai-tools";
+
+    // 0. Validate platform against the canonical list
+    const { VALID_PLATFORMS } = await import("@/lib/types");
+    if (!VALID_PLATFORMS.includes(platform as any)) {
+      return NextResponse.json({ error: `Invalid platform. Must be one of: ${VALID_PLATFORMS.join(", ")}` }, { status: 400 });
+    }
 
     // 1. Input validation on niche
     const VALID_NICHES = ["ai-tools", "web-development", "devops-cloud", "open-source", "blockchain"];

@@ -142,7 +142,8 @@ async def cluster_posts(req: ClusterRequest):
             continue
 
         # Metrics
-        platforms = list(set(p["platform"] for p in cluster_posts))
+        from models import VALID_PLATFORMS
+        platforms = list(set(p["platform"] for p in cluster_posts if p["platform"] in VALID_PLATFORMS))
         cross_platform_count = len(platforms)
         post_frequency = len(cluster_posts)
 

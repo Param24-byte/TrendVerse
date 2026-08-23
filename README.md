@@ -6,23 +6,29 @@ TrendVerse is a full-stack dashboard that tracks and clusters emerging developer
 
 ## Architecture & Tech Stack
 
-```
+```text
                      ┌───────────────────────┐
-                     │   Next.js Frontend    │
-                     │  (App Router, Port 3000)
-                     └──────────┬────────────┘
-                                │ Requests
-                                ▼
-  ┌─────────────────┐    ┌──────┴────────────┐    ┌─────────────────┐
-  │  Supabase DB    │◄───┤  FastAPI Service   │───►│   Gemini API    │
-  │  (PGVector RLS) │    │  (Python, Port 8000)│   │  (Brief Gen)    │
-  └─────────────────┘    └───────────────────┘    └─────────────────┘
+                     │   Next.js App Router  │
+                     │  (Orchestrator & UI)  │
+                     └─┬─────────┬─────────┬─┘
+           Ingest &    │         │         │ Research Brief
+           DB Writes   ▼         │         ▼ Generation
+  ┌─────────────────┐  │         │    ┌─────────────────┐
+  │  Supabase DB    │◄─┘         │    │   Gemini API    │
+  │  (PGVector RLS) │◄───────────┘    └─────────────────┘
+  └─────────────────┘  Embed & Cluster
+          ▲                  (FastAPI Python)
+          │
+  ┌───────┴────────────┐
+  │  FastAPI Service   │
+  │  (Python, Port 8000)│
+  └────────────────────┘
 ```
 
-1. **Frontend**: Next.js 16 (App Router), Tailwind CSS, Framer Motion, Recharts, shadcn/ui.
-2. **Backend**: Python FastAPI, scikit-learn (KMeans clustering), SentenceTransformers (`all-MiniLM-L6-v2` for 384-dimensional vector embeddings).
+1. **Frontend & Orchestration**: Next.js 16 (App Router) handles the UI, ingestion orchestration (`api/ingest`), and direct Gemini AI calls (`api/brief`).
+2. **Backend**: Python FastAPI microservice dedicated purely to math: scikit-learn (KMeans clustering), SentenceTransformers (`all-MiniLM-L6-v2` for 384-dimensional vector embeddings).
 3. **Database**: Supabase PostgreSQL with `pgvector` enabled for similarity search and Row Level Security (RLS).
-4. **AI Generation**: Gemini 2.5 Flash for structured Markdown Research Brief synthesis.
+4. **AI Generation**: Gemini 2.5 Flash for structured Markdown Research Brief synthesis, triggered securely via the Next.js API.
 
 ---
 

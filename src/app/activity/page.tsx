@@ -31,7 +31,7 @@ export default function LiveActivityPage() {
           .select("*")
           .eq("niche", currentNiche)
           .order("scraped_at", { ascending: false })
-          .limit(40);
+          .limit(300);
 
         if (error) {
           console.error("Error fetching posts:", error);
@@ -76,7 +76,7 @@ export default function LiveActivityPage() {
             toast("New live post ingested!", { icon: "📥", duration: 1500 });
             // Dispatch custom window event to pulse header indicator
             window.dispatchEvent(new CustomEvent("new-post-ingested"));
-            return [payload.new, ...prevPosts].slice(0, 40); // Keep last 40 posts
+            return [payload.new, ...prevPosts].slice(0, 300); // Keep last 300 posts
           });
         }
       )
@@ -151,7 +151,7 @@ export default function LiveActivityPage() {
                     placeholder="Search feed..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-xl border border-white/5 bg-[#0e1324]/40 py-2.5 pl-9 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full rounded-xl border border-white/5 bg-[#08080a] py-2.5 pl-9 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -210,12 +210,12 @@ export default function LiveActivityPage() {
             )}
 
             {loading ? (
-              <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-2xl border border-white/5 bg-[#0a0f1e]/40">
+              <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-2xl border border-white/5 bg-[#08080a]/40">
                 <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
                 <p className="text-sm font-medium text-slate-400">Loading incoming stream...</p>
               </div>
             ) : filteredPosts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0a0f1e]/20 py-24 text-center">
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#08080a]/40 py-24 text-center">
                 <Zap className="h-10 w-10 text-slate-600 mb-4 animate-pulse" />
                 <p className="text-lg font-medium text-slate-300">No posts in feed</p>
                 <p className="mt-2 text-sm text-slate-500">
@@ -264,7 +264,7 @@ export default function LiveActivityPage() {
                         href={post.url || "#"}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="glass group flex flex-col justify-between rounded-xl p-8 border bg-[#0e1324]/30 hover:border-indigo-500/30 hover:bg-white/5 transition-all duration-300"
+                        className="glass group flex flex-col justify-between rounded-xl p-8 border bg-[#08080a] hover:border-indigo-500/30 hover:bg-white/5 transition-all duration-300"
                         style={{ borderLeftWidth: "4px" }}
                       >
                         <div>

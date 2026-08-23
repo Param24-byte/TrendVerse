@@ -1,5 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
+import os
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+    load_dotenv("../.env.local")
+except ImportError:
+    pass
+
 from models import HealthResponse
 from routers import embed, cluster, trends
 
@@ -10,18 +20,42 @@ app = FastAPI(
 )
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
+# Read allowed origins from env; fallback to localhost for dev
+allowed_origins_str = os.environ.get("ALLOWED_ORIGINS", "")
+site_url = os.environ.get("NEXT_PUBLIC_SITE_URL", "")
+
+origins = ["http://localhost:3000", "http://localhost:3001"]
+if site_url and site_url not in origins:
+    origins.append(site_url)
+for o in allowed_origins_str.split(","):
+    o = o.strip()
+    if o and o not in origins:
+        origins.append(o)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ── Auth ──────────────────────────────────────────────────────────────────────
+security = HTTPBearer()
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    secret = os.environ.get("INTERNAL_API_SECRET") or os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+    if secret and credentials.credentials != secret:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token",
+        )
+    return credentials.credentials
+
 # ── Routers ───────────────────────────────────────────────────────────────────
-app.include_router(embed.router)
-app.include_router(cluster.router)
-app.include_router(trends.router)
+app.include_router(embed.router, dependencies=[Depends(verify_token)])
+app.include_router(cluster.router, dependencies=[Depends(verify_token)])
+app.include_router(trends.router, dependencies=[Depends(verify_token)])
 
 
 # ── Health Check ──────────────────────────────────────────────────────────────

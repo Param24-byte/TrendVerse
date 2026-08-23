@@ -1,4 +1,15 @@
 import sys
+"""
+LEGACY ONE-OFF MIGRATION SCRIPT
+===============================
+This script was used once to patch old 'hn', 'ph', and 'hf' platform slug strings 
+to their full names ('hackernews', 'producthunt', 'huggingface') and to backfill 
+missing velocity scores in the database.
+
+It is NOT part of the regular data ingestion pipeline. It has been moved here 
+so it won't be confused with active scraper scripts. Do not run this on a cron.
+"""
+
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

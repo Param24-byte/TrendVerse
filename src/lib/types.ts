@@ -1,13 +1,16 @@
 // ─── Shared TypeScript types for TrendVerse ───────────────────────────────────
 
-export type Platform =
-  | "github"
-  | "hackernews"
-  | "producthunt"
-  | "huggingface"
-  | "devto"
-  | "reddit"
-  | "stackexchange";
+export const VALID_PLATFORMS = [
+  "github",
+  "hackernews",
+  "producthunt",
+  "huggingface",
+  "devto",
+  "reddit",
+  "stackexchange"
+] as const;
+
+export type Platform = typeof VALID_PLATFORMS[number];
 
 export interface Source {
   id: string;

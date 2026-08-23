@@ -1,10 +1,10 @@
 # TrendVerse Task List
 
-## Phase 1: Bright Data Scraper Integration (Completed)
+## Phase 1: Ingestion Pipeline & ML Integration (Completed)
 - `[x]` Install Bright Data CLI & Setup Authentication
-- `[x]` Create Python script to trigger Bright Data scrapers (`run_scrapers.py`)
-- `[x]` Create Python script to normalize and ingest data to Supabase (`normalize.py`)
-- `[x]` Add a 6-hour interval scheduler for running the scrapers
+- `[x]` Create Next.js API route to trigger native and Bright Data scrapers (`api/ingest/[platform]/route.ts`)
+- `[x]` Create Next.js orchestrator to fan-out ingestion across all platforms and trigger ML pipeline (`api/ingest/run-all/route.ts`)
+- `[x]` Add a 30-minute interval scheduler for running the orchestrator via Vercel Cron (`vercel.json`)
 - `[x]` Verify data ingestion into Supabase & Map external URLs to display in frontend
 
 ## Phase 2: User Interface, Auth & Pages (Upcoming)

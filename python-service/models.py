@@ -3,6 +3,17 @@ from typing import Optional, List, Any
 from datetime import datetime
 
 
+# ─── Constants ─────────────────────────────────────────────────────────────────
+VALID_PLATFORMS = [
+    "github",
+    "hackernews",
+    "producthunt",
+    "huggingface",
+    "devto",
+    "reddit",
+    "stackexchange"
+]
+
 # ─── Request Models ────────────────────────────────────────────────────────────
 
 class EmbedBatchRequest(BaseModel):

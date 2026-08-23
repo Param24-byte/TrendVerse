@@ -30,15 +30,15 @@ export function usePosts(niche: string) {
         setPosts(data || []);
       }
       
-      // Fetch lightweight platform stats for the entire dataset
+      // Fetch true platform stats for the entire dataset via our SQL view
       const { data: statsData } = await supabase
-        .from("posts")
-        .select("platform")
+        .from("platform_niche_counts")
+        .select("platform, post_count")
         .eq("niche", niche);
         
       if (mounted && statsData) {
         const counts = statsData.reduce((acc: Record<string, number>, curr) => {
-          acc[curr.platform] = (acc[curr.platform] || 0) + 1;
+          acc[curr.platform] = Number(curr.post_count);
           return acc;
         }, {});
         setPlatformCounts(counts);

@@ -59,7 +59,7 @@ export function Header() {
   // Global Cmd+K keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         document.getElementById('search-field')?.focus();
       }
@@ -83,7 +83,7 @@ export function Header() {
   const userInitials = user?.email ? user.email.substring(0, 2).toUpperCase() : "U";
 
   return (
-    <header className="sticky top-0 z-40 flex h-20 shrink-0 items-center justify-between border-b border-white/5 bg-black px-8 shadow-sm backdrop-blur-xl">
+    <header className="sticky top-0 z-40 flex h-24 shrink-0 items-center justify-between border-b border-white/5 bg-black px-8 shadow-sm backdrop-blur-xl">
       
       {/* Left side: Breadcrumbs */}
       <div className="flex items-center gap-3">
