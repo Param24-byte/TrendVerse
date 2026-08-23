@@ -4,138 +4,182 @@ TrendVerse is a full-stack dashboard that tracks and clusters emerging developer
 
 ---
 
-## Architecture & Tech Stack
+## 🏗️ Architecture
 
-```text
-                     ┌───────────────────────┐
-                     │   Next.js App Router  │
-                     │  (Orchestrator & UI)  │
-                     └─┬─────────┬─────────┬─┘
-           Ingest &    │         │         │ Research Brief
-           DB Writes   ▼         │         ▼ Generation
-  ┌─────────────────┐  │         │    ┌─────────────────┐
-  │  Supabase DB    │◄─┘         │    │   Gemini API    │
-  │  (PGVector RLS) │◄───────────┘    └─────────────────┘
-  └─────────────────┘  Embed & Cluster
-          ▲                  (FastAPI Python)
-          │
-  ┌───────┴────────────┐
-  │  FastAPI Service   │
-  │  (Python, Port 8000)│
-  └────────────────────┘
+TrendVerse utilizes a robust, microservices-inspired architecture splitting frontend orchestration from heavy machine-learning workloads.
+
+```mermaid
+flowchart TD
+    %% Define styles
+    classDef frontend fill:#3178c6,stroke:#333,stroke-width:2px,color:white;
+    classDef backend fill:#38bdf8,stroke:#333,stroke-width:2px,color:black;
+    classDef db fill:#10b981,stroke:#333,stroke-width:2px,color:white;
+    classDef external fill:#f59e0b,stroke:#333,stroke-width:2px,color:black;
+    classDef ml fill:#8b5cf6,stroke:#333,stroke-width:2px,color:white;
+
+    %% Nodes
+    User(("🧑‍💻 User"))
+    NextJS["Next.js App Router\n(UI & Orchestration)"]:::frontend
+    Scrapers["Bright Data & Native Scrapers\n(GitHub, HN, Reddit, etc.)"]:::external
+    Supabase[("Supabase PostgreSQL\nwith pgvector")]:::db
+    FastAPI["FastAPI Python Service\n(Clustering & Embeddings)"]:::backend
+    Gemini["Google Gemini 2.5 Flash\n(AI Synthesis)"]:::ml
+
+    %% Connections
+    User <-->|Views Dashboard & Triggers| NextJS
+    NextJS -->|1. Triggers Scrapes| Scrapers
+    Scrapers -->|2. Raw Posts| NextJS
+    NextJS -->|3. Writes Data| Supabase
+    NextJS -->|4. Requests Clustering| FastAPI
+    FastAPI -->|5. Reads Posts| Supabase
+    FastAPI -->|6. Writes Embeddings & Trends| Supabase
+    NextJS -->|7. Prompts Synthesis| Gemini
+    Gemini -->|8. Returns Research Brief| NextJS
 ```
 
-1. **Frontend & Orchestration**: Next.js 16 (App Router) handles the UI and all data ingestion. Scraping is performed entirely in TypeScript via `api/ingest/[platform]/route.ts` routes (using Bright Data for GitHub/HN/PH/HF, and native HTTP for Dev.to/Reddit/Stack Overflow). The orchestrator at `api/ingest/run-all/route.ts` fans out across all platforms and triggers the ML pipeline. There are no Python scraper scripts — the `python-service/` directory is dedicated purely to ML.
-2. **ML Backend**: Python FastAPI microservice (`python-service/`) dedicated purely to math: scikit-learn (KMeans clustering), SentenceTransformers (`all-MiniLM-L6-v2` for 384-dimensional vector embeddings). Auth-gated with a bearer token.
-3. **Database**: Supabase PostgreSQL with `pgvector` enabled for similarity search and Row Level Security (RLS). Platform slugs enforced via `CHECK` constraint.
-4. **AI Generation**: Gemini 2.5 Flash for structured Markdown Research Brief synthesis, triggered securely via the Next.js API (`api/brief`).
+1. **Frontend & Orchestration**: Next.js 16 (App Router) handles the UI and all data ingestion. Scraping is performed via API routes using Bright Data and native HTTP requests.
+2. **ML Backend**: Python FastAPI microservice dedicated to machine learning tasks like KMeans clustering and embedding generation via `SentenceTransformers` (`all-MiniLM-L6-v2`).
+3. **Database**: Supabase PostgreSQL with `pgvector` for similarity search and Row Level Security (RLS).
+4. **AI Generation**: Gemini 2.5 Flash is used to generate structured Research Briefs.
 
 ---
 
-## Getting Started
+## 🗄️ Database Design
+
+The database is built on Supabase PostgreSQL and is designed for fast relational queries as well as vector similarity searches.
+
+```mermaid
+erDiagram
+    sources ||--o{ posts : "scrapes"
+    posts ||--o{ trend_posts : "belongs_to"
+    trends ||--o{ trend_posts : "contains"
+    trends ||--o| research_reports : "has_one"
+
+    sources {
+        UUID id PK
+        TEXT platform
+        TEXT niche
+        TIMESTAMPTZ last_scraped_at
+    }
+
+    posts {
+        TEXT id PK
+        UUID source_id FK
+        TEXT platform
+        TEXT title
+        INTEGER engagement_count
+        FLOAT velocity_score
+        vector embedding "pgvector(384)"
+    }
+
+    trends {
+        TEXT id PK
+        TEXT cluster_label
+        FLOAT trend_score
+        INTEGER post_count
+        TEXT[] platforms
+    }
+
+    trend_posts {
+        TEXT trend_id PK, FK
+        TEXT post_id PK, FK
+    }
+
+    research_reports {
+        UUID id PK
+        TEXT trend_id FK
+        TEXT brief_markdown
+        TEXT[] key_hashtags
+    }
+```
+
+*   **`sources`**: Tracks the platforms and niches we monitor.
+*   **`posts`**: Stores individual scraped items. Crucially, it includes an `embedding` column powered by `pgvector` for 384-dimensional vectors.
+*   **`trends`**: Represents a cluster of similar posts (grouped by the KMeans algorithm).
+*   **`trend_posts`**: A junction table linking a trend to its constituent posts.
+*   **`research_reports`**: Stores AI-generated markdown briefs synthesized from a specific trend's data.
+
+Row Level Security (RLS) policies govern access, allowing anonymous users to read data while restricting writes to the service role.
+
+---
+
+## 🚀 Deployment Architecture
+
+TrendVerse is deployed across specialized cloud providers to optimize for frontend edge delivery and backend compute performance.
+
+```mermaid
+architecture-beta
+    group frontend(logos:vercel)[Vercel]
+    group backend(logos:render)[Render]
+    group database(logos:supabase)[Supabase]
+
+    service nextjs(logos:nextjs)[Next.js Application] in frontend
+    service cron(logos:vercel)[Vercel Cron] in frontend
+    service python(logos:python)[Python FastAPI] in backend
+    service pg(logos:postgresql)[PostgreSQL + pgvector] in database
+
+    cron --R--> nextjs
+    nextjs --R--> python
+    nextjs --R--> pg
+    python --R--> pg
+```
+
+1. **Vercel (Frontend & Serverless Functions)**:
+    *   Hosts the Next.js React application.
+    *   Serverless functions handle UI requests, API routing, and AI integration.
+    *   `vercel.json` configures a Cron Job that hits `/api/ingest/run-all` every 30 minutes to automate scraping.
+2. **Render (ML Backend)**:
+    *   The `python-service` is containerized (via `Dockerfile`) and deployed as a web service on Render.
+    *   This provides dedicated, persistent compute necessary for loading the ML models in memory and running computationally heavy clustering algorithms.
+3. **Supabase (Database as a Service)**:
+    *   Hosts the Postgres database with `pgvector` enabled.
+    *   Manages connection pooling and Row Level Security for both Vercel and Render environments.
+
+---
+
+## ⚙️ Getting Started
 
 ### Prerequisites
 - Node.js (v20+ recommended)
 - Python (v3.9+ recommended)
-- A Supabase project (Free tier works perfectly)
+- A Supabase project
 - Gemini API Key
 
----
+### 1. Database Setup (Supabase)
+1. Open your Supabase Project dashboard, navigate to the **SQL Editor**.
+2. Run the script found in `supabase/migrations/001_initial_schema.sql` to setup tables and `pgvector`.
 
-## 1. Database Setup (Supabase)
-
-1. Open your Supabase Project dashboard.
-2. Navigate to the **SQL Editor**.
-3. Create a new query and paste the contents of [supabase/migrations/001_initial_schema.sql](supabase/migrations/001_initial_schema.sql).
-4. Run the script. This will:
-   - Enable the `pgvector` extension.
-   - Create tables: `sources`, `posts`, `trends`, `trend_posts`, and `research_reports`.
-   - Setup Row Level Security (RLS) policies allowing read access to users and service role access for backend write operations.
-
----
-
-## 2. Environment Configuration
-
-Create a `.env.local` file in the root directory:
+### 2. Environment Configuration
+Create a `.env.local` file:
 
 ```bash
-# Supabase Keys (from Project Settings > API)
 NEXT_PUBLIC_SUPABASE_URL=https://<your-project-id>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
 SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
-
-# Gemini API (from Google AI Studio)
 GEMINI_API_KEY=<your-gemini-api-key>
-
-# Internal API Shared Secret (Auth-gates ingest/brief/ml endpoints)
 INTERNAL_API_SECRET=<your-custom-shared-secret>
-
-# Vercel Cron Secret (Required for automated scheduler authorization)
 CRON_SECRET=<your-vercel-cron-secret>
 
-# Bright Data Scrapers (Required for paid platform scrapers)
-BRIGHTDATA_API_TOKEN=<your-brightdata-token>
-BRIGHTDATA_GITHUB_SCRAPER_ID=<your-github-scraper-id>
-BRIGHTDATA_HACKERNEWS_SCRAPER_ID=<your-hackernews-scraper-id>
-BRIGHTDATA_PRODUCTHUNT_SCRAPER_ID=<your-producthunt-scraper-id>
-BRIGHTDATA_HUGGINGFACE_SCRAPER_ID=<your-huggingface-scraper-id>
-
-# Reddit API Configuration
-REDDIT_USER_AGENT=TrendVerse/1.0 (by /u/yourusername)
+# Scraper Settings
+BRIGHTDATA_API_TOKEN=<token>
+REDDIT_USER_AGENT=TrendVerse/1.0
 
 # ML Python Service URL
 ML_SERVICE_URL=http://localhost:8000
 ```
 
-> [!NOTE]
-> GitHub, Hacker News, Product Hunt, and Hugging Face scrapers utilize Bright Data Scraper Studio IDs. If these are not configured, they will fail gracefully and report detailed error messages, while native scrapers (Dev.to, Reddit, Stack Overflow) remain fully functional.
+### 3. Backend Setup (FastAPI)
+```bash
+cd python-service
+python -m venv venv
+# Windows: .\venv\Scripts\activate  |  macOS: source venv/bin/activate
+pip install -r requirements.txt
+python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
 
----
-
-## 3. Backend Setup (FastAPI)
-
-1. Navigate to the `python-service` directory:
-   ```bash
-   cd python-service
-   ```
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   # On Windows:
-   .\venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Start the Uvicorn server:
-   ```bash
-   python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-   ```
-
-The backend health check will be available at [http://localhost:8000/health](http://localhost:8000/health).
-
----
-
-## 4. Frontend Setup (Next.js)
-
-1. Navigate to the root directory and install npm packages:
-   ```bash
-   npm install
-   ```
-2. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the dashboard.
-
----
-
-## Ingestion & Scrape Execution
-Scraper execution is scheduled periodically every 30 minutes using Vercel Cron (`vercel.json`). You can also manually trigger ingestion and clustering:
-1. Access the **Settings** page (requires logging in/registering).
-2. Scroll to the **Data Ingestion Pipeline** panel.
-3. Select a niche (e.g. `AI Tools`) and click **Execute Pipeline**. This will fetch raw posts, generate embeddings in batch, run KMeans clustering, and surface the latest trends dynamically (governed by a 15-minute execution cooldown).
+### 4. Frontend Setup (Next.js)
+```bash
+npm install
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the dashboard!
